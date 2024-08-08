@@ -1,0 +1,8 @@
+{
+  "private": {
+    "admin": {
+      "user": "admin",
+      "password": "admin"
+    }
+  }
+}
