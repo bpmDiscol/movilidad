@@ -7,8 +7,8 @@ import { NotificationContext } from "./contexts/notificationContext";
 export default function Login() {
   const { Title, Text } = Typography;
   const { alertMessage } = useContext(NotificationContext);
-  const onFinish = (values) => {
-    loginDiscol(values, (resp) => {
+  const onFinish = ({ username, password }) => {
+    Meteor.loginWithPassword(username, password , (resp) => {
       if (resp.error)
         alertMessage({
           type: "error",
