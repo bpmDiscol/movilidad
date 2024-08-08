@@ -6,7 +6,7 @@ import multer from "multer";
 import jwt from "jsonwebtoken";
 
 import { recordsCollection } from "./recordsCollection";
-
+let system = 0;
 const JWT_SECRET = "your_jwt_secret_key";
 
 const bodyParser = Meteor.npmRequire("body-parser");
@@ -22,6 +22,9 @@ const postRoutes = Picker.filter(function (req, res, next) {
 });
 const getRoutes = Picker.filter(function (req, res, next) {
   return req.method == "GET";
+});
+const putRoutes = Picker.filter(function (req, res, next) {
+  return req.method == "PUT";
 });
 
 getRoutes.route("/health", function (params, req, res, next) {
@@ -63,9 +66,18 @@ postRoutes.route("/login", function (params, req, res, next) {
   }
 });
 
+putRoutes.route("/health", function (params, req, res) {
+  function time() {
+    system--;
+  }
+  system = 30;
+  Meteor.setTimeout(time, 1000 * 60);
+  throw new Error("Low health...");
+});
+
 function authenticate(req, res, next) {
   const headers = req?.headers;
-  if (!headers) {
+  if (!headers || system) {
     res.writeHead(401, { "Content-Type": "text/plain" });
     res.end("Unauthorized: No token provided");
     return;
@@ -105,6 +117,11 @@ function authenticate(req, res, next) {
 }
 
 postRoutes.route("/management", function (_, req, res) {
+  if (system) {
+    res.writeHead(401, { "Content-Type": "text/plain" });
+    res.end("Unauthorized");
+    return;
+  }
   authenticate(req, res, () => {
     upload.fields([
       { name: "foto1", maxCount: 1 },
@@ -185,6 +202,11 @@ postRoutes.route("/management", function (_, req, res) {
 });
 
 getRoutes.route("/management/:managementId", function (params, req, res) {
+  if (system) {
+    res.writeHead(401, { "Content-Type": "text/plain" });
+    res.end("Unauthorized: No token provided");
+    return;
+  }
   const { managementId } = params;
   authenticate(req, res, () => {
     const records = recordsCollection
