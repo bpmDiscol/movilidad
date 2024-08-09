@@ -1,8 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import { Picker } from "meteor/meteorhacks:picker";
 import { check } from "meteor/check";
-import { photosCollection } from "../photos/photosCollection";
-import multer from "multer";
+// import { photosCollection } from "../photos/photosCollection";
+// import multer from "multer";
 import jwt from "jsonwebtoken";
 
 import { recordsCollection } from "./recordsCollection";
@@ -14,8 +14,8 @@ const bodyParser = Meteor.npmRequire("body-parser");
 Picker.middleware(bodyParser.json());
 Picker.middleware(bodyParser.urlencoded({ extended: false }));
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage: storage });
 
 const postRoutes = Picker.filter(function (req, res, next) {
   return req.method == "POST";
