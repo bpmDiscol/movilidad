@@ -201,16 +201,16 @@ postRoutes.route("/management", function (_, req, res) {
   });
 });
 
-getRoutes.route("/management/:managementId", function (params, req, res) {
+getRoutes.route("/management/:username", function (params, req, res) {
   if (system) {
     res.writeHead(401, { "Content-Type": "text/plain" });
     res.end("Unauthorized: No token provided");
     return;
   }
-  const { managementId } = params;
+  const { username } = params;
   authenticate(req, res, () => {
     const records = recordsCollection
-      .find({ managementId: managementId })
+      .find({ GESTOR: username })
       .fetch();
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(records));
