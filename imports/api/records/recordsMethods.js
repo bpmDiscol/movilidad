@@ -2,6 +2,18 @@ import { Meteor } from "meteor/meteor";
 import { recordsCollection } from "./recordsCollection";
 import moment from "moment";
 
+function formatDate(date) {
+  if (!date) return null;
+
+  const [day, month, year] = date.split("/");
+
+  // Ensure day and month are two digits
+  const formattedDay = day.length === 1 ? `0${day}` : day;
+  const formattedMonth = month.length === 1 ? `0${month}` : month;
+
+  return `${formattedDay}/${formattedMonth}/${year}`;
+}
+
 Meteor.methods({
   async createRecord(record) {
     return await recordsCollection
@@ -76,16 +88,27 @@ Meteor.methods({
     }
 
     if (date) {
-      const startOfDay = moment(date, "DD/MM/YYYY").startOf("day").toDate();
-      const endOfDay = moment(date, "DD/MM/YYYY").endOf("day").toDate();
-      query["fecha_gestion"] = { $gte: startOfDay, $lte: endOfDay };
+      // Normaliza la fecha proporcionada a un objeto Date
+      const normalizedDate = moment(date, "DD/MM/YYYY").startOf('day').toDate();
+      const nextDay = moment(normalizedDate).add(1, 'day').startOf('day').toDate();
+  
+      query["fecha_gestion"] = {
+        $gte: normalizedDate,
+        $lt: nextDay,
+      };
     }
 
     if (startDate && endDate) {
-      const start = moment(startDate, "DD/MM/YYYY").startOf("day").toDate();
-      const end = moment(endDate, "DD/MM/YYYY").endOf("day").toDate();
-      query["fecha_gestion"] = { $gte: start, $lte: end };
+      // Normaliza las fechas proporcionadas a objetos Date
+      const normalizedStartDate = moment(startDate, "DD/MM/YYYY").startOf('day').toDate();
+      const normalizedEndDate = moment(endDate, "DD/MM/YYYY").endOf('day').toDate();
+  
+      query["fecha_gestion"] = {
+        $gte: normalizedStartDate,
+        $lte: normalizedEndDate,
+      };
     }
+
     return await recordsCollection
       .rawCollection()
       .aggregate([

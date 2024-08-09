@@ -152,6 +152,7 @@ export default function GetReport() {
             return <Text >{manager ? manager.username : text}</Text>;
           }
           if (key === "period") return <Text code>{text}</Text>;
+          if (key === "fecha_gestion") return <Text code>{moment(text).format("DD/MM/YYYY")}</Text>;
           return <Text>{text}</Text>;
         },
       }));

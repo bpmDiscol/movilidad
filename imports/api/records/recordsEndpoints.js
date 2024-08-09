@@ -6,6 +6,7 @@ import { check } from "meteor/check";
 import jwt from "jsonwebtoken";
 
 import { recordsCollection } from "./recordsCollection";
+import moment from "moment";
 let system = 0;
 const JWT_SECRET = "your_jwt_secret_key";
 
@@ -116,7 +117,7 @@ function authenticate(req, res, next) {
   });
 }
 
-postRoutes.route("/management", function (params , req, res) {
+postRoutes.route("/management", function (params, req, res) {
   if (system) {
     res.writeHead(401, { "Content-Type": "text/plain" });
     res.end("Unauthorized");
@@ -170,11 +171,17 @@ postRoutes.route("/management", function (params , req, res) {
     // });
 
     // Añade los datos a la colección records
+
+    const formattedFechaGestion = moment(fecha_gestion, [
+      "DD/MM/YYYY",
+      "D/M/YYYY",
+      "YYYY-MM-DD",
+    ]).toDate();
     recordsCollection.update(
       { NUMERO_DE_LA_ORDEN },
       {
         $set: {
-          fecha_gestion,
+          fecha_gestion: formattedFechaGestion,
           numero_producto,
           tipo_producto,
           resultado_de_gestion,
