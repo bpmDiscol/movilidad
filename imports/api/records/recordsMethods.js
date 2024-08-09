@@ -89,20 +89,20 @@ Meteor.methods({
 
     if (date) {
       // Normaliza la fecha proporcionada a un objeto Date
-      const normalizedDate = moment(date, "DD/MM/YYYY").startOf('day').toDate();
-      const nextDay = moment(normalizedDate).add(1, 'day').startOf('day').toDate();
-  
-      query["fecha_gestion"] = {
-        $gte: normalizedDate,
-        $lt: nextDay,
-      };
+      const normalizedDate = moment(date, "DD/MM/YYYY").startOf("day").toDate();
+
+      query["fecha_gestion"] = normalizedDate;
     }
 
     if (startDate && endDate) {
       // Normaliza las fechas proporcionadas a objetos Date
-      const normalizedStartDate = moment(startDate, "DD/MM/YYYY").startOf('day').toDate();
-      const normalizedEndDate = moment(endDate, "DD/MM/YYYY").endOf('day').toDate();
-  
+      const normalizedStartDate = moment(startDate, "DD/MM/YYYY")
+        .startOf("day")
+        .toDate();
+      const normalizedEndDate = moment(endDate, "DD/MM/YYYY")
+        .endOf("day")
+        .toDate();
+
       query["fecha_gestion"] = {
         $gte: normalizedStartDate,
         $lte: normalizedEndDate,

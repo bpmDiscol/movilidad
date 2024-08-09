@@ -152,6 +152,7 @@ postRoutes.route("/management", function (params, req, res) {
       telefono_sugerido,
       observacion,
       ubicacion,
+      status
     } = req.body;
 
     // Guarda las fotos en la colección
@@ -196,6 +197,7 @@ postRoutes.route("/management", function (params, req, res) {
           telefono_sugerido,
           observacion,
           ubicacion,
+          status,
           updatedAt: new Date(),
         },
       },
