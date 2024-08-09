@@ -55,7 +55,7 @@ postRoutes.route("/login", function (params, req, res, next) {
     }
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "24h",
     });
 
     res.writeHead(200, { "Content-Type": "application/json" });
