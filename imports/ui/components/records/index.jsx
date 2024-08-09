@@ -1,8 +1,18 @@
-import { Button, DatePicker, Input, message, Select, Space, Table } from "antd";
+import {
+  Button,
+  DatePicker,
+  Input,
+  message,
+  Select,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import convertDate from "../../utils/convertDate";
+const { Text } = Typography;
 
 export default function Records() {
   const [dataSource, setDataSource] = useState([]);
@@ -114,18 +124,24 @@ export default function Records() {
       message.error("Seleccione un gestor antes de asignar.");
       return;
     }
-    const updates = selectedRowKeys.map((recordId) =>
-      new Promise((resolve, reject) => {
-        Meteor.call("updateRecordManager", recordId, selectedManager, (error) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve();
-          }
-        });
-      })
+    const updates = selectedRowKeys.map(
+      (recordId) =>
+        new Promise((resolve, reject) => {
+          Meteor.call(
+            "updateRecordManager",
+            recordId,
+            selectedManager,
+            (error) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve();
+              }
+            }
+          );
+        })
     );
-  
+
     // Una vez que todas las asignaciones han sido realizadas, refresca los datos
     Promise.all(updates)
       .then(() => {
@@ -170,7 +186,7 @@ export default function Records() {
                 display: "block",
               }}
             />
-            <Space style={{justifyContent:"space-between"}}>
+            <Space style={{ justifyContent: "space-between" }}>
               <Button
                 type="primary"
                 onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
@@ -191,7 +207,7 @@ export default function Records() {
               >
                 Reset
               </Button>
-              
+
               {/* <Button
                 type="link"
                 size="small"
@@ -256,6 +272,7 @@ export default function Records() {
     {
       title: "Gestor",
       dataIndex: "GESTOR",
+      fixed: "left",
       render: (text, record) => (
         <Select
           value={record.GESTOR}
@@ -270,46 +287,67 @@ export default function Records() {
           ))}
         </Select>
       ),
+      width: 180,
     },
     {
       title: "Número de Orden",
       dataIndex: "NUMERO_DE_LA_ORDEN",
+      width: 180,
       ...getColumnSearchProps("NUMERO_DE_LA_ORDEN"),
     },
     {
       title: "Contrato",
       dataIndex: "CONTRATO",
+      width: 180,
       ...getColumnSearchProps("CONTRATO"),
     },
     {
       title: "Producto",
       dataIndex: "PRODUCTO",
+      width: 180,
       ...getColumnSearchProps("PRODUCTO"),
     },
     {
       title: "Barrio",
       dataIndex: "DESCRIPCION_BARRIO",
+      width: 180,
       ...getColumnSearchProps("DESCRIPCION_BARRIO"),
     },
     {
       title: "Dirección",
       dataIndex: "DIRECCION_PREDIO",
+      width: 180,
       ...getColumnSearchProps("DIRECCION_PREDIO"),
     },
     {
       title: "Periodo",
       dataIndex: "period",
+      width: 180,
       render: (date) => convertDate(date),
     },
     {
       title: "Ciclo",
       dataIndex: "DESCRIPCION_CICLO",
+      width: 180,
       ...getColumnSearchProps("DESCRIPCION_CICLO"),
     },
     {
       title: "Indicador Operativo",
       dataIndex: "NOMBRE_UNIDAD_OPERATIVA",
+      width: 180,
       ...getColumnSearchProps("NOMBRE_UNIDAD_OPERATIVA"),
+    },
+    {
+      title: "Estado financiero",
+      dataIndex: "ESTADO_FINANCIERO",
+      width: 180,
+      ...getColumnSearchProps("ESTADO_FINANCIERO"),
+    },
+    {
+      title: "Plan de acuerdo de pago",
+      dataIndex: "PLAN_DE_ACUERDO_DE_PAGO",
+      width: 180,
+      ...getColumnSearchProps("PLAN_DE_ACUERDO_DE_PAGO"),
     },
   ];
 
@@ -361,11 +399,17 @@ export default function Records() {
         size="small"
         pagination={{
           ...pagination,
+          showTotal: (total) => (
+            <Text keyboard type="danger" >{`${total} Resultados encontrados `}</Text>
+          ),
           position: ["topLeft"],
         }}
         onChange={handleTableChange}
-        scroll={{ x: 1000 }}
-        style={{ width: "100%", overflowX: "auto" }}
+        scroll={{
+          x: 100,
+          y: "50dvh",
+        }}
+        style={{ width: "100vw", overflowX: "auto" }}
       />
       ;
     </div>

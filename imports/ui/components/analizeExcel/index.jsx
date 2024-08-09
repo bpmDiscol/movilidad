@@ -27,7 +27,10 @@ export default function AnalizeExcel() {
   function uploadRecords(file) {
     const { chargeFile, ...fields } = form.getFieldsValue();
     const { period, ...extra } = fields;
-    const extrafields = { ...extra, period: JSON.stringify(period).replace(/["']/g, '') };
+    const extrafields = {
+      ...extra,
+      period: JSON.stringify(period).replace(/["']/g, ""),
+    };
 
     new Promise(() => {
       const reader = new FileReader();
@@ -80,98 +83,101 @@ export default function AnalizeExcel() {
     },
   };
   return (
-    <Flex style={{ width: "20rem" }}>
-      <Form
-        form={form}
-        layout="vertical"
-        requiredMark={false}
-        wrapperCol={{
-          span: 32,
-        }}
-        onFinish={() => {
-          uploadRecords(file);
-        }}
-      >
-        <Form.Item
-          name={"managementType"}
-          rules={[
-            {
-              required: true,
-              message: "Debe ingresar un tipo de gestión!",
-            },
-          ]}
-        >
-          <Input placeholder="Tipo de gestión" />
-        </Form.Item>
-        <Form.Item
-          name={"client"}
-          rules={[
-            {
-              required: true,
-              message: "Debe ingresar cliente!",
-            },
-          ]}
-        >
-          <Input placeholder="Cliente" />
-        </Form.Item>
-        <Form.Item
-          name={"location"}
-          rules={[
-            {
-              required: true,
-              message: "Debe ingresar una localización!",
-            },
-          ]}
-        >
-          <Input placeholder="Localización" />
-        </Form.Item>
-        <Form.Item
-          name={"period"}
-          rules={[
-            {
-              required: true,
-              message: "Debe ingresar un periodo!",
-            },
-          ]}
-        >
-          <DatePicker
-            placeholder="Selecciona un periodo"
-            style={{ width: "20rem" }}
-            showNow={false}
-            format={"YYYY/MM/DD"}
-          />
-        </Form.Item>
-        <Form.Item
-          name={"chargeFile"}
-          rules={[
-            {
-              required: true,
-              message: "Debe ingresar un archivo!",
-            },
-          ]}
-        >
-          <Dragger {...props}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">
-              Haz click o arrastra un archivo a esta area
-            </p>
-            <p className="ant-upload-hint">{file?.name}</p>
-            {progressLevel ? (
-              <Progress
-                percent={(progressLevel.total / progressLevel.current) * 100}
-                status={progressStatus}
-              />
-            ) : null}
-          </Dragger>
-        </Form.Item>
-        <Form.Item>
-          <Button htmlType="submit" block type="primary">
-            Enviar
-          </Button>
-        </Form.Item>
-      </Form>
-    </Flex>
+    <Form
+      form={form}
+      requiredMark={false}
+      wrapperCol={{
+        span: 32,
+      }}
+      onFinish={() => {
+        uploadRecords(file);
+      }}
+    >
+      <Flex gap={32} align="center" justify="center" style={{ width: "100%" }}>
+        <Flex vertical>
+          <Form.Item
+            name={"managementType"}
+            rules={[
+              {
+                required: true,
+                message: "Debe ingresar un tipo de gestión!",
+              },
+            ]}
+          >
+            <Input placeholder="Tipo de gestión" />
+          </Form.Item>
+          <Form.Item
+            name={"client"}
+            rules={[
+              {
+                required: true,
+                message: "Debe ingresar cliente!",
+              },
+            ]}
+          >
+            <Input placeholder="Cliente" />
+          </Form.Item>
+          <Form.Item
+            name={"location"}
+            rules={[
+              {
+                required: true,
+                message: "Debe ingresar una localización!",
+              },
+            ]}
+          >
+            <Input placeholder="Localización" />
+          </Form.Item>
+          <Form.Item
+            name={"period"}
+            rules={[
+              {
+                required: true,
+                message: "Debe ingresar un periodo!",
+              },
+            ]}
+          >
+            <DatePicker
+              placeholder="Selecciona un periodo"
+              style={{ width: "20rem" }}
+              showNow={false}
+              format={"YYYY/MM/DD"}
+            />
+          </Form.Item>
+        </Flex>
+        <Flex vertical>
+          <Form.Item
+            name={"chargeFile"}
+            rules={[
+              {
+                required: true,
+                message: "Debe ingresar un archivo!",
+              },
+            ]}
+          >
+            <Dragger {...props}>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Haz click o arrastra un archivo a esta area
+              </p>
+              <p className="ant-upload-hint">{file?.name}</p>
+              {progressLevel ? (
+                <Progress
+                  percent={(progressLevel.total / progressLevel.current) * 100}
+                  status={progressStatus}
+                />
+              ) : null}
+            </Dragger>
+          </Form.Item>
+          <Form.Item>
+            <Button htmlType="submit" block type="primary">
+              Enviar
+            </Button>
+          </Form.Item>
+        </Flex>
+      </Flex>
+    </Form>
   );
 }

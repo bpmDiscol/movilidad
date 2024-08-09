@@ -62,9 +62,9 @@ const Main = () => {
             background: colorBgContainer,
           }}
         >
-          <Flex style={{ paddingRight: "2%" }} justify="end">
-            {role.userRole === "admin" ? "Admin" : "Lider"}{" "}
+          <Flex gap={10} style={{ paddingRight: "2%" }} justify="end">
             {Meteor.user().username.toUpperCase()}
+             <UserOutlined />
           </Flex>
         </Header>
         <Content
@@ -73,7 +73,7 @@ const Main = () => {
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,
-            overflow: "auto",
+            overflow: "hidden",
           }}
         >
           {view && view}

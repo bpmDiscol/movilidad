@@ -116,7 +116,7 @@ function authenticate(req, res, next) {
   });
 }
 
-postRoutes.route("/management", function (_, req, res) {
+postRoutes.route("/management", function (params , req, res) {
   if (system) {
     res.writeHead(401, { "Content-Type": "text/plain" });
     res.end("Unauthorized");

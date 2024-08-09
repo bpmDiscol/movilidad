@@ -1,11 +1,19 @@
-import { Button, DatePicker, Input, Select, Space, Table, message } from "antd";
+import {
+  Button,
+  DatePicker,
+  Input,
+  Select,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { Meteor } from "meteor/meteor";
 import XLSX from "xlsx";
 import convertDate from "../../utils/convertDate";
 
-const { Option } = Select;
+const { Text } = Typography;
 
 export default function GetReport() {
   const [dataSource, setDataSource] = useState([]);
@@ -118,20 +126,33 @@ export default function GetReport() {
 
     // Generate columns dynamically from the keys of the first record
     return Object.keys(dataSource[0])
-      .filter((key) => key !== "_id")
+      .filter(
+        (key) =>
+          ![
+            "_id",
+            "ULTIMO_TIPO_COMENTARIO_OT",
+            "UNIDAD_OPERATIVA",
+            "VALIDACION_REF_PRODUCTO",
+            "updatedAt",
+          ].includes(key)
+      )
       .map((key) => ({
-        title: key,
+        title: key.toUpperCase(),
         dataIndex: key,
         key: key,
+        width: 200,
+        fixed: key === "GESTOR",
+        elipsis: true,
         render: (text, record) => {
           if (key === "GESTOR") {
             // Replace GESTOR ID with the username
             const manager = managers.find(
               (manager) => manager.id === record[key]
             );
-            return manager ? manager.username : text;
+            return <Text >{manager ? manager.username : text}</Text>;
           }
-          return text;
+          if (key === "period") return <Text code>{text}</Text>;
+          return <Text>{text}</Text>;
         },
       }));
   };
@@ -192,11 +213,20 @@ export default function GetReport() {
         rowKey={(record) => record._id}
         pagination={{
           ...pagination,
+          showTotal: (total) => (
+            <Text
+              keyboard
+              type="danger"
+            >{`${total} Resultados encontrados `}</Text>
+          ),
           position: ["topLeft"],
         }}
         onChange={handleTableChange}
-        scroll={{ x: 1000 }}
-        style={{ width: "100%", overflowX: "auto" }}
+        scroll={{
+          x: 100,
+          y: "50dvh",
+        }}
+        style={{ width: "100vw", overflowX: "auto" }}
         size="small"
       />
     </div>
