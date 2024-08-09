@@ -123,83 +123,82 @@ postRoutes.route("/management", function (_, req, res) {
     return;
   }
   authenticate(req, res, () => {
-    upload.fields([
-      { name: "foto1", maxCount: 1 },
-      { name: "foto2", maxCount: 1 },
-    ])(req, res, async function (err) {
-      if (err) {
-        res.writeHead(400, { "Content-Type": "text/plain" });
-        res.end("Error uploading files");
-        return;
-      }
+    // upload.fields([
+    //   { name: "foto1", maxCount: 1 },
+    //   { name: "foto2", maxCount: 1 },
+    // ])(req, res, async function (err) {
+    //   if (err) {
+    //     res.writeHead(400, { "Content-Type": "text/plain" });
+    //     res.end("Error uploading files");
+    //     return;
+    //   }
 
-      // Extrae los datos del query string
-      const {
-        NUMERO_DE_LA_ORDEN,
-        fecha_gestion,
-        numero_producto,
-        tipo_producto,
-        resultado_de_gestion,
-        causal_de_pago,
-        causal_de_no_pago,
-        estado_servicio,
-        recibo,
-        valor_recibo,
-        lectura,
-        tipo_de_vivienda,
-        contacto,
-        telefono_sugerido,
-        observacion,
-        ubicacion,
-      } = req.body;
+    // Extrae los datos del query string
+    const {
+      NUMERO_DE_LA_ORDEN,
+      fecha_gestion,
+      numero_producto,
+      tipo_producto,
+      resultado_de_gestion,
+      causal_de_pago,
+      causal_de_no_pago,
+      estado_servicio,
+      recibo,
+      valor_recibo,
+      lectura,
+      tipo_de_vivienda,
+      contacto,
+      telefono_sugerido,
+      observacion,
+      ubicacion,
+    } = req.body;
 
-      // Guarda las fotos en la colección
-      const foto1 = req.files["foto1"] ? req.files["foto1"][0] : null;
-      const foto2 = req.files["foto2"] ? req.files["foto2"][0] : null;
+    // Guarda las fotos en la colección
+    // const foto1 = req.files["foto1"] ? req.files["foto1"][0] : null;
+    // const foto2 = req.files["foto2"] ? req.files["foto2"][0] : null;
 
-      const fotos = [foto1, foto2].map((photo) => {
-        if (!photo) return null;
-        const fileId = Date.now().toString();
+    // const fotos = [foto1, foto2].map((photo) => {
+    //   if (!photo) return null;
+    //   const fileId = Date.now().toString();
 
-        photosCollection.write(photo.buffer, {
-          fileName: photo.originalname,
-          type: photo.mimetype,
-          fileId,
-        });
-        return fileId;
-      });
+    //   photosCollection.write(photo.buffer, {
+    //     fileName: photo.originalname,
+    //     type: photo.mimetype,
+    //     fileId,
+    //   });
+    //   return fileId;
+    // });
 
-      // Añade los datos a la colección records
-      recordsCollection.update(
-        { NUMERO_DE_LA_ORDEN },
-        {
-          $set: {
-            fecha_gestion,
-            numero_producto,
-            tipo_producto,
-            resultado_de_gestion,
-            causal_de_pago,
-            causal_de_no_pago,
-            estado_servicio,
-            recibo,
-            valor_recibo,
-            lectura,
-            tipo_de_vivienda,
-            contacto,
-            telefono_sugerido,
-            observacion,
-            fotos,
-            ubicacion,
-            updatedAt: new Date(),
-          },
+    // Añade los datos a la colección records
+    recordsCollection.update(
+      { NUMERO_DE_LA_ORDEN },
+      {
+        $set: {
+          fecha_gestion,
+          numero_producto,
+          tipo_producto,
+          resultado_de_gestion,
+          causal_de_pago,
+          causal_de_no_pago,
+          estado_servicio,
+          recibo,
+          valor_recibo,
+          lectura,
+          tipo_de_vivienda,
+          contacto,
+          telefono_sugerido,
+          observacion,
+          ubicacion,
+          updatedAt: new Date(),
         },
-        { upsert: true }
-      );
-      res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end("Record added successfully");
-    });
+      },
+      { upsert: true }
+    );
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Record added successfully");
   });
 });
+// });
 
 getRoutes.route("/management/:username", function (params, req, res) {
   if (system) {
@@ -209,9 +208,7 @@ getRoutes.route("/management/:username", function (params, req, res) {
   }
   const { username } = params;
   authenticate(req, res, () => {
-    const records = recordsCollection
-      .find({ GESTOR: username })
-      .fetch();
+    const records = recordsCollection.find({ GESTOR: username }).fetch();
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(records));
   });
