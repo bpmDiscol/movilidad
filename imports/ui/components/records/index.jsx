@@ -50,12 +50,9 @@ export default function Records() {
     setSearchedColumn(dataIndex);
 
     const searchTerm = selectedKeys[0];
-
-    setSearchKeys({ ...searchKeys, ...{ [dataIndex]: searchTerm } });
-    fetchRecords(1, pagination.pageSize, {
-      ...searchKeys,
-      ...{ [dataIndex]: searchTerm },
-    });
+    const search = { ...searchKeys, ...{ [dataIndex]: searchTerm } };
+    setSearchKeys(search);
+    fetchRecords(1, pagination.pageSize, search);
     setPagination((prev) => ({
       ...prev,
       current: 1,
@@ -67,23 +64,26 @@ export default function Records() {
     setPagination(pagination);
   };
 
-  const handleReset = (clearFilters) => {
+  const handleReset = (clearFilters, dataIndex, confirm) => {
+    const search = { ...searchKeys, ...{ [dataIndex]: "" } };
     clearFilters();
+    confirm();
     setSearchText("");
     setSearchedColumn("");
-    fetchRecords(1, pagination.pageSize);
+    setSearchKeys(search);
+    fetchRecords(1, pagination.pageSize, search);
     setPagination((prev) => ({
       ...prev,
       current: 1,
     }));
   };
-  const handleDateChange = (date, dateString) => {
+  const handleDateChange = (date) => {
     const search = date
       ? {
           ...searchKeys,
           ...{ period: JSON.stringify(date).replace(/["']/g, "") },
         }
-      : {};
+      : { ...searchKeys, period: "" };
     setSearchKeys(search);
     fetchRecords(1, pagination.pageSize, search);
     setPagination((prev) => ({
@@ -199,7 +199,10 @@ export default function Records() {
                 Busca
               </Button>
               <Button
-                onClick={() => clearFilters && handleReset(clearFilters)}
+                onClick={() =>
+                  clearFilters &&
+                  handleReset(clearFilters, dataIndex, confirm)
+                }
                 size="small"
                 style={{
                   width: 90,
@@ -369,10 +372,12 @@ export default function Records() {
           onChange={handleDateChange}
           format="YYYY-MM-DD"
           placeholder="Fecha"
+          onEmptied={handleDateChange}
         />
         {selectedRowKeys.length > 0 && (
           <>
             <Select
+              title="Asignacion en bloque"
               placeholder="Selecciona un gestor"
               style={{ width: 200 }}
               onChange={(value) => setSelectedManager(value)}
@@ -400,7 +405,10 @@ export default function Records() {
         pagination={{
           ...pagination,
           showTotal: (total) => (
-            <Text keyboard type="danger" >{`${total} Resultados encontrados `}</Text>
+            <Text
+              keyboard
+              type="danger"
+            >{`${total} Resultados encontrados `}</Text>
           ),
           position: ["topLeft"],
         }}
