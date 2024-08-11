@@ -1,6 +1,7 @@
 import {
   Button,
   DatePicker,
+  Flex,
   Input,
   message,
   Select,
@@ -9,9 +10,15 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { SearchOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  SortAscendingOutlined,
+  SortDescendingOutlined,
+} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
-import convertDate from "../../utils/convertDate";
+import "./records.css";
+import formatIfNumber from "../../utils/formatIfNumber";
+
 const { Text } = Typography;
 
 export default function Records() {
@@ -28,9 +35,9 @@ export default function Records() {
   const [searchKeys, setSearchKeys] = useState({});
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedManager, setSelectedManager] = useState(null);
-
-  const fetchRecords = (page, pageSize, search) => {
-    Meteor.call("getRecords", page, pageSize, search, (err, resp) => {
+  const voidSorter = { sortField: null, sortOrder: 1 };
+  const fetchRecords = (page, pageSize, search, sort = voidSorter) => {
+    Meteor.call("getRecords", page, pageSize, search, sort, (err, resp) => {
       if (err) {
         console.error(err);
         return;
@@ -44,7 +51,12 @@ export default function Records() {
     });
   };
 
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+  const handleSearch = (
+    selectedKeys,
+    confirm,
+    dataIndex,
+    sort = voidSorter
+  ) => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
@@ -52,7 +64,7 @@ export default function Records() {
     const searchTerm = selectedKeys[0];
     const search = { ...searchKeys, ...{ [dataIndex]: searchTerm } };
     setSearchKeys(search);
-    fetchRecords(1, pagination.pageSize, search);
+    fetchRecords(1, pagination.pageSize, search, sort);
     setPagination((prev) => ({
       ...prev,
       current: 1,
@@ -65,7 +77,7 @@ export default function Records() {
   };
 
   const handleReset = (clearFilters, dataIndex, confirm) => {
-    const search = { ...searchKeys, ...{ [dataIndex]: "" } };
+    const search = delete searchKeys[dataIndex];
     clearFilters();
     confirm();
     setSearchText("");
@@ -141,13 +153,11 @@ export default function Records() {
           );
         })
     );
-
-    // Una vez que todas las asignaciones han sido realizadas, refresca los datos
     Promise.all(updates)
       .then(() => {
         message.success("Gestores asignados con éxito.");
         fetchRecords(pagination.current, pagination.pageSize, searchKeys);
-        setSelectedRowKeys([]); // Limpia la selección
+        setSelectedRowKeys([]);
       })
       .catch((error) => {
         console.error("Error updating manager:", error);
@@ -164,8 +174,35 @@ export default function Records() {
         clearFilters,
         close,
       }) => {
-        return (
+        return dataIndex === "GESTOR" ? (
           <div
+            style={{
+              padding: 8,
+            }}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <Select
+              placeholder="Selecciona un gestor"
+              style={{ width: 200 }}
+              onChange={(value) => {
+                console.log(value);
+                handleSearch([value] || [""], confirm, "GESTOR");
+              }}
+              allowClear
+            >
+              {[...managers, { id: 0, username: "SIN ASIGNAR" }].map(
+                (manager) => (
+                  <Select.Option key={manager.id} value={manager.id}>
+                    {manager.username}
+                  </Select.Option>
+                )
+              )}
+            </Select>
+          </div>
+        ) : (
+          <Flex
+            vertical
+            gap={5}
             style={{
               padding: 8,
             }}
@@ -200,8 +237,7 @@ export default function Records() {
               </Button>
               <Button
                 onClick={() =>
-                  clearFilters &&
-                  handleReset(clearFilters, dataIndex, confirm)
+                  clearFilters && handleReset(clearFilters, dataIndex, confirm)
                 }
                 size="small"
                 style={{
@@ -210,20 +246,6 @@ export default function Records() {
               >
                 Reset
               </Button>
-
-              {/* <Button
-                type="link"
-                size="small"
-                onClick={() => {
-                  confirm({
-                    closeDropdown: false,
-                  });
-                  setSearchText(selectedKeys[0]);
-                  setSearchedColumn(dataIndex);
-                }}
-              >
-                Resaltar
-              </Button> */}
               <Button
                 type="link"
                 size="small"
@@ -234,7 +256,34 @@ export default function Records() {
                 Cerrar
               </Button>
             </Space>
-          </div>
+            <Flex vertical align="start">
+              <Button
+                icon={<SortAscendingOutlined style={{ fontSize: 20 }} />}
+                type="link"
+                onClick={() =>
+                  handleSearch(selectedKeys, confirm, dataIndex, {
+                    sortField: dataIndex,
+                    sortOrder: 1,
+                  })
+                }
+              >
+                Orden ascendente
+              </Button>
+              <Button
+                icon={<SortDescendingOutlined style={{ fontSize: 20 }} />}
+
+                type="link"
+                onClick={() =>
+                  handleSearch(selectedKeys, confirm, dataIndex, {
+                    sortField: dataIndex,
+                    sortOrder: -1,
+                  })
+                }
+              >
+                Orden descendente
+              </Button>
+            </Flex>
+          </Flex>
         );
       },
       filterIcon: (filtered) => (
@@ -246,16 +295,31 @@ export default function Records() {
       ),
       onFilter: (value, record) =>
         record[dataIndex]
-          .toString()
-          .toLowerCase()
-          .includes(value.toLowerCase()),
+          ? record[dataIndex]
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          : false,
       onFilterDropdownOpenChange: (visible) => {
         if (visible) {
           setTimeout(() => searchInput.current?.select(), 100);
         }
       },
-      render: (text) =>
-        searchedColumn === dataIndex ? (
+      render: (text, record) =>
+        dataIndex == "GESTOR" ? (
+          <Select
+            value={record.GESTOR}
+            onChange={(value) => handleManagerChange(value, record)}
+            style={{ width: 150 }}
+            allowClear
+          >
+            {managers.map((manager) => (
+              <Select.Option key={manager.id} value={manager._id}>
+                {manager.username}
+              </Select.Option>
+            ))}
+          </Select>
+        ) : searchedColumn === dataIndex ? (
           <Highlighter
             highlightStyle={{
               backgroundColor: "#ffc069",
@@ -263,10 +327,10 @@ export default function Records() {
             }}
             searchWords={[searchText]}
             autoEscape
-            textToHighlight={text ? text.toString() : ""}
+            textToHighlight={formatIfNumber(text)}
           />
         ) : (
-          text
+          formatIfNumber(text)
         ),
     };
   };
@@ -276,33 +340,14 @@ export default function Records() {
       title: "Gestor",
       dataIndex: "GESTOR",
       fixed: "left",
-      render: (text, record) => (
-        <Select
-          value={record.GESTOR}
-          onChange={(value) => handleManagerChange(value, record)}
-          style={{ width: 150 }}
-          allowClear
-        >
-          {managers.map((manager) => (
-            <Select.Option key={manager.id} value={manager._id}>
-              {manager.username}
-            </Select.Option>
-          ))}
-        </Select>
-      ),
       width: 180,
+      ...getColumnSearchProps("GESTOR"),
     },
     {
-      title: "Número de Orden",
+      title: "Orden",
       dataIndex: "NUMERO_DE_LA_ORDEN",
       width: 180,
       ...getColumnSearchProps("NUMERO_DE_LA_ORDEN"),
-    },
-    {
-      title: "Contrato",
-      dataIndex: "CONTRATO",
-      width: 180,
-      ...getColumnSearchProps("CONTRATO"),
     },
     {
       title: "Producto",
@@ -311,34 +356,34 @@ export default function Records() {
       ...getColumnSearchProps("PRODUCTO"),
     },
     {
-      title: "Barrio",
-      dataIndex: "DESCRIPCION_BARRIO",
+      title: "Contrato",
+      dataIndex: "CONTRATO",
       width: 180,
-      ...getColumnSearchProps("DESCRIPCION_BARRIO"),
+      ...getColumnSearchProps("CONTRATO"),
     },
     {
-      title: "Dirección",
-      dataIndex: "DIRECCION_PREDIO",
+      title: "Tipo de servicio",
+      dataIndex: "DESCRIPCION_TIPO_PRODUCTO",
       width: 180,
-      ...getColumnSearchProps("DIRECCION_PREDIO"),
+      ...getColumnSearchProps("DESCRIPCION_TIPO_PRODUCTO"),
     },
     {
-      title: "Periodo",
-      dataIndex: "period",
+      title: "Categoría",
+      dataIndex: "DESCRIPCION_CATEGORIA",
       width: 180,
-      render: (date) => convertDate(date),
+      ...getColumnSearchProps("DESCRIPCION_CATEGORIA"),
     },
     {
-      title: "Ciclo",
-      dataIndex: "DESCRIPCION_CICLO",
+      title: "Estrato",
+      dataIndex: "DESCRIPCION_SUBCATEGORIA",
       width: 180,
-      ...getColumnSearchProps("DESCRIPCION_CICLO"),
+      ...getColumnSearchProps("DESCRIPCION_SUBCATEGORIA"),
     },
     {
-      title: "Indicador Operativo",
-      dataIndex: "NOMBRE_UNIDAD_OPERATIVA",
+      title: "Refinanciaciones/año",
+      dataIndex: "NUMERO_REFINANCIACIONES_ULTIMO_ANO",
       width: 180,
-      ...getColumnSearchProps("NOMBRE_UNIDAD_OPERATIVA"),
+      ...getColumnSearchProps("NUMERO_REFINANCIACIONES_ULTIMO_ANO"),
     },
     {
       title: "Estado financiero",
@@ -347,10 +392,76 @@ export default function Records() {
       ...getColumnSearchProps("ESTADO_FINANCIERO"),
     },
     {
-      title: "Plan de acuerdo de pago",
-      dataIndex: "PLAN_DE_ACUERDO_DE_PAGO",
+      title: "Lectura",
+      dataIndex: "ULTIMA_LECTURA_TOMADA",
       width: 180,
-      ...getColumnSearchProps("PLAN_DE_ACUERDO_DE_PAGO"),
+      ...getColumnSearchProps("ULTIMA_LECTURA_TOMADA"),
+    },
+    {
+      title: "Medidor",
+      dataIndex: "ELEMENTO_MEDICION",
+      width: 180,
+      ...getColumnSearchProps("ELEMENTO_MEDICION"),
+    },
+    {
+      title: "Barrio",
+      dataIndex: "DESCRIPCION_BARRIO",
+      width: 180,
+      ...getColumnSearchProps("DESCRIPCION_BARRIO"),
+    },
+    {
+      title: "Ciclo",
+      dataIndex: "DESCRIPCION_CICLO",
+      width: 180,
+      ...getColumnSearchProps("DESCRIPCION_CICLO"),
+    },
+    {
+      title: "Identificación",
+      dataIndex: "IDENTIFICACION",
+      width: 180,
+      ...getColumnSearchProps("IDENTIFICACION"),
+    },
+    {
+      title: "Titular del servicio",
+      dataIndex: "NOMBRE_CLIENTE",
+      width: 180,
+      ...getColumnSearchProps("NOMBRE_CLIENTE"),
+    },
+    {
+      title: "Dirección",
+      dataIndex: "DIRECCION_PREDIO",
+      width: 180,
+      ...getColumnSearchProps("DIRECCION_PREDIO"),
+    },
+    {
+      title: "Días deuda",
+      dataIndex: "DIAS_DEUDA_ASIGNACION",
+      width: 180,
+      ...getColumnSearchProps("DIAS_DEUDA_ASIGNACION"),
+    },
+    {
+      title: "Saldo no vencido",
+      dataIndex: "DIAS_DEUDA_ASIGNACION",
+      width: 180,
+      ...getColumnSearchProps("DIAS_DEUDA_ASIGNACION"),
+    },
+    {
+      title: "Saldo vencido",
+      dataIndex: "CORRIENTE_VENCIDA_ASIGNADA",
+      width: 180,
+      ...getColumnSearchProps("CORRIENTE_VENCIDA_ASIGNADA"),
+    },
+    {
+      title: "Refi. Histórico",
+      dataIndex: "REFINANCIACIONES_PRODUCTO",
+      width: 180,
+      ...getColumnSearchProps("REFINANCIACIONES_PRODUCTO"),
+    },
+    {
+      title: "Edad mora actual",
+      dataIndex: "EDAD_MORA_ACTUAL",
+      width: 180,
+      ...getColumnSearchProps("EDAD_MORA_ACTUAL"),
     },
   ];
 
@@ -418,6 +529,9 @@ export default function Records() {
           y: "50dvh",
         }}
         style={{ width: "100vw", overflowX: "auto" }}
+        rowClassName={(_, index) =>
+          index % 2 === 0 ? "ant-table-row-alternate" : "ant-table-row-base"
+        }
       />
       ;
     </div>

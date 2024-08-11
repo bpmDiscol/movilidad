@@ -30,6 +30,7 @@ export default function GetReport() {
   });
 
   useEffect(() => {
+    fetchReport(pagination.current, pagination.pageSize);
     Meteor.call("getManagers", Meteor.userId(), (error, result) => {
       if (error) {
         console.error("Error fetching managers:", error);
@@ -149,10 +150,11 @@ export default function GetReport() {
             const manager = managers.find(
               (manager) => manager.id === record[key]
             );
-            return <Text >{manager ? manager.username : text}</Text>;
+            return <Text>{manager ? manager.username : text}</Text>;
           }
           if (key === "period") return <Text code>{text}</Text>;
-          if (key === "fecha_gestion") return <Text code>{moment(text).format("DD/MM/YYYY")}</Text>;
+          if (key === "fecha_gestion")
+            return <Text code>{moment(text).format("DD/MM/YYYY")}</Text>;
           return <Text>{text}</Text>;
         },
       }));
@@ -195,7 +197,7 @@ export default function GetReport() {
         />
         <Button
           type="primary"
-          onClick={() => fetchReport(pagination.current, pagination.pageSize)}
+          onClick={() => fetchReport(1, pagination.pageSize)}
         >
           Buscar Reportes
         </Button>

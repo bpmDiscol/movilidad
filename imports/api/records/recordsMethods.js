@@ -24,21 +24,29 @@ Meteor.methods({
       )
       .catch((e) => console.log(e));
   },
-  async getRecords(page, pageSize, filters = {}) {
+  async getRecords(page, pageSize, filters = {}, sort) {
     page = parseInt(page, 10) || 1;
     pageSize = parseInt(pageSize, 10) || 50;
 
     let filter = {};
     if (filters)
       for (const [key, value] of Object.entries(filters)) {
-        filter[key] = { $regex: value, $options: "i" };
+        key === "GESTOR"
+          ? value == 0
+            ? (filter[key] = { $eq: null })
+            : (filter[key] = { $eq: value })
+          : (filter[key] = { $regex: value, $options: "i" });
       }
 
+    const { sortField, sortOrder } = sort;
     const records = await recordsCollection
       .rawCollection()
       .aggregate([
         {
           $match: filter,
+        },
+        {
+          $sort: { [sortField]: sortOrder },
         },
         {
           $facet: {
@@ -76,6 +84,8 @@ Meteor.methods({
     date,
     startDate,
     endDate,
+    sortField,
+    sortOrder = 1,
   }) {
     let query = {};
 
@@ -114,6 +124,9 @@ Meteor.methods({
       .aggregate([
         {
           $match: query,
+        },
+        {
+          $sort: { [sortField]: sortOrder },
         },
         {
           $facet: {

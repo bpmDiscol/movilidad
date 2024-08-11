@@ -13,7 +13,6 @@ import { InboxOutlined } from "@ant-design/icons";
 
 import * as XLSX from "xlsx";
 import checkKeys from "./checkKkeys";
-import normalizeKey from "./normalizeKeys";
 import normalizedRecords from "./normalizeRecords";
 
 const { Dragger } = Upload;
@@ -30,6 +29,7 @@ export default function AnalizeExcel() {
     const extrafields = {
       ...extra,
       period: JSON.stringify(period).replace(/["']/g, ""),
+      
     };
 
     new Promise(() => {

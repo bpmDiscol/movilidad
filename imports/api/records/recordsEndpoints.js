@@ -1,8 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import { Picker } from "meteor/meteorhacks:picker";
 import { check } from "meteor/check";
-// import { photosCollection } from "../photos/photosCollection";
-// import multer from "multer";
+import { photosCollection } from "../photos/photosCollection";
+import multer from "multer";
 import jwt from "jsonwebtoken";
 
 import { recordsCollection } from "./recordsCollection";
@@ -15,8 +15,8 @@ const bodyParser = Meteor.npmRequire("body-parser");
 Picker.middleware(bodyParser.json());
 Picker.middleware(bodyParser.urlencoded({ extended: false }));
 
-// const storage = multer.memoryStorage();
-// const upload = multer({ storage: storage });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const postRoutes = Picker.filter(function (req, res, next) {
   return req.method == "POST";
@@ -116,6 +116,45 @@ function authenticate(req, res, next) {
     next();
   });
 }
+postRoutes.route("/management/photos/:orden", function (params, req, res) {
+  const { orden } = params;
+  authenticate(req, res, () => {
+    // 10 es el número máximo de fotos permitidas
+    upload.array("fotos", 10)(req, res, async function (err) {
+      if (err) {
+        res.writeHead(400, { "Content-Type": "text/plain" });
+        res.end("Error uploading files");
+        return;
+      }
+
+      const fotos = req.files.map((photo) => {
+        if (!photo) return null;
+        const fileId = Date.now().toString();
+
+        // Guarda la foto en la colección
+        photosCollection.write(photo.buffer, {
+          fileName: photo.originalname,
+          type: photo.mimetype,
+          fileId,
+        });
+
+        return fileId;
+      });
+
+      // Actualiza el registro en la colección con el array de fotos
+      recordsCollection.update(
+        { NUMERO_DE_LA_ORDEN: orden },
+        {
+          $set: { fotos },
+        },
+        { upsert: true }
+      );
+
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end("Record added successfully");
+    });
+  });
+});
 
 postRoutes.route("/management", function (params, req, res) {
   if (system) {
@@ -124,16 +163,6 @@ postRoutes.route("/management", function (params, req, res) {
     return;
   }
   authenticate(req, res, () => {
-    // upload.fields([
-    //   { name: "foto1", maxCount: 1 },
-    //   { name: "foto2", maxCount: 1 },
-    // ])(req, res, async function (err) {
-    //   if (err) {
-    //     res.writeHead(400, { "Content-Type": "text/plain" });
-    //     res.end("Error uploading files");
-    //     return;
-    //   }
-
     // Extrae los datos del query string
     const {
       NUMERO_DE_LA_ORDEN,
@@ -152,24 +181,8 @@ postRoutes.route("/management", function (params, req, res) {
       telefono_sugerido,
       observacion,
       ubicacion,
-      status
+      status,
     } = req.body;
-
-    // Guarda las fotos en la colección
-    // const foto1 = req.files["foto1"] ? req.files["foto1"][0] : null;
-    // const foto2 = req.files["foto2"] ? req.files["foto2"][0] : null;
-
-    // const fotos = [foto1, foto2].map((photo) => {
-    //   if (!photo) return null;
-    //   const fileId = Date.now().toString();
-
-    //   photosCollection.write(photo.buffer, {
-    //     fileName: photo.originalname,
-    //     type: photo.mimetype,
-    //     fileId,
-    //   });
-    //   return fileId;
-    // });
 
     // Añade los datos a la colección records
 
@@ -207,7 +220,6 @@ postRoutes.route("/management", function (params, req, res) {
     res.end("Record added successfully");
   });
 });
-// });
 
 getRoutes.route("/management/:username", function (params, req, res) {
   if (system) {
