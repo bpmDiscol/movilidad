@@ -67,6 +67,27 @@ postRoutes.route("/login", function (params, req, res, next) {
   }
 });
 
+postRoutes.route("/refresh-token", function (params, req, res, next) {
+  const { token } = req.body;
+
+  try {
+    // Verifica el token actual
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Genera un nuevo token
+    const newToken = jwt.sign({ userId: decoded.userId }, JWT_SECRET, {
+      expiresIn: "24h",
+    });
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ token: newToken }));
+  } catch (e) {
+    // Si el token es inválido o ha expirado, devuelve un error
+    res.writeHead(401, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ message: "Invalid or expired token" }));
+  }
+});
+
 putRoutes.route("/health", function (params, req, res) {
   function time() {
     system--;
