@@ -57,6 +57,7 @@ export default function GetReport() {
           : null,
       },
       (error, result) => {
+        console.log("🚀 ~ fetchReport ~ result:", result);
         if (error) {
           console.error("Error fetching report:", error);
         } else {

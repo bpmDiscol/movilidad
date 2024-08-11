@@ -162,15 +162,21 @@ function authenticate(req, res, next) {
 postRoutes.route("/management/photos/:orden", function (params, req, res) {
   const { orden } = params;
   authenticate(req, res, () => {
-    // 10 es el número máximo de fotos permitidas
-    upload.array("fotos", 10)(req, res, async function (err) {
+    upload.fields([
+      { name: "foto1", maxCount: 1 },
+      { name: "foto2", maxCount: 1 },
+    ])(req, res, async function (err) {
       if (err) {
         res.writeHead(400, { "Content-Type": "text/plain" });
         res.end("Error uploading files");
         return;
       }
 
-      const fotos = req.files.map((photo) => {
+      // Guarda las fotos en la colección
+      const foto1 = req.files["foto1"] ? req.files["foto1"][0] : null;
+      const foto2 = req.files["foto2"] ? req.files["foto2"][0] : null;
+
+      const fotos = [foto1, foto2].map((photo) => {
         if (!photo) return null;
         const fileId = Date.now().toString();
 
@@ -234,6 +240,7 @@ postRoutes.route("/management", function (params, req, res) {
       "D/M/YYYY",
       "YYYY-MM-DD",
     ]).toDate();
+
     recordsCollection.update(
       { NUMERO_DE_LA_ORDEN },
       {

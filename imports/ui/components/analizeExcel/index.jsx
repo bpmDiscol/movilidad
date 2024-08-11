@@ -24,8 +24,6 @@ export default function AnalizeExcel() {
   const [progressStatus, setProgressStatus] = useState("active");
   const [totalUpdates, setTotalUpdates] = useState(0);
   const [displayedProgress, setDisplayedProgress] = useState(0);
-  console.log("🚀 ~ AnalizeExcel ~ displayedProgress:", displayedProgress);
-
   function uploadRecords(file) {
     setProgressLevel({ total: 0, current: 0 });
     setTotalUpdates(0);
@@ -78,6 +76,9 @@ export default function AnalizeExcel() {
             ...extrafields,
             TOTAL_DEUDA_CORRIENTE: parseFloat(totalDeudaCorriente),
             INDICADOR: indicador,
+            DESCRIPCION_TIPO_PRODUCTO: record["DESCRIPCION_TIPO_PRODUCTO"]
+              ? record["DESCRIPCION_TIPO_PRODUCTO"].toUpperCase()
+              : "",
           };
 
           Meteor.call("createRecord", normalizedRecord, (err, result) => {
@@ -121,8 +122,6 @@ export default function AnalizeExcel() {
       return false;
     },
   };
-
-  console.log("🚀 ~ useEffect ~ progressLevel:", progressLevel);
   useEffect(() => {
     if (progressLevel && progressLevel.total && progressLevel.current) {
       const targetProgress =

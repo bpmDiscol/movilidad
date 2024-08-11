@@ -18,11 +18,13 @@ import {
 import Highlighter from "react-highlight-words";
 import "./records.css";
 import formatIfNumber from "../../utils/formatIfNumber";
+import moment from "moment";
 
 const { Text } = Typography;
 
 export default function Records() {
   const [dataSource, setDataSource] = useState([]);
+  console.log("🚀 ~ Records ~ dataSource:", dataSource)
   const [managers, setManagers] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -35,6 +37,7 @@ export default function Records() {
   const [searchKeys, setSearchKeys] = useState({});
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedManager, setSelectedManager] = useState(null);
+  
   const voidSorter = { sortField: null, sortOrder: 1 };
   const fetchRecords = (page, pageSize, search, sort = voidSorter) => {
     Meteor.call("getRecords", page, pageSize, search, sort, (err, resp) => {
@@ -93,7 +96,9 @@ export default function Records() {
     const search = date
       ? {
           ...searchKeys,
-          ...{ period: JSON.stringify(date).replace(/["']/g, "") },
+          period: moment(date.toString(), "ddd, DD MMM YYYY HH:mm:ss [GMT]")
+            .startOf("day")
+            .toISOString(),
         }
       : { ...searchKeys, period: "" };
     setSearchKeys(search);
@@ -271,7 +276,6 @@ export default function Records() {
               </Button>
               <Button
                 icon={<SortDescendingOutlined style={{ fontSize: 20 }} />}
-
                 type="link"
                 onClick={() =>
                   handleSearch(selectedKeys, confirm, dataIndex, {
@@ -462,6 +466,18 @@ export default function Records() {
       dataIndex: "EDAD_MORA_ACTUAL",
       width: 180,
       ...getColumnSearchProps("EDAD_MORA_ACTUAL"),
+    },
+    {
+      title: "Total deuda corriente",
+      dataIndex: "TOTAL_DEUDA_CORRIENTE",
+      width: 180,
+      ...getColumnSearchProps("TOTAL_DEUDA_CORRIENTE"),
+    },
+    {
+      title: "Indicador",
+      dataIndex: "INDICADOR",
+      width: 180,
+      ...getColumnSearchProps("INDICADOR"),
     },
   ];
 

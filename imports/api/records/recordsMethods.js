@@ -130,7 +130,7 @@ Meteor.methods({
       };
     }
 
-    return await recordsCollection
+    const pages = await recordsCollection
       .rawCollection()
       .aggregate([
         {
@@ -153,5 +153,129 @@ Meteor.methods({
         },
       ])
       .toArray();
+    console.log(pages);
+
+    const totales = pages[0].totalCount
+      ? await recordsCollection
+          .rawCollection()
+          .aggregate([
+            {
+              $match: query,
+            },
+            {
+              $facet: {
+                metadata: [
+                  {
+                    $group: {
+                      _id: null,
+                      totalDeudaCorriente: { $sum: "$TOTAL_DEUDA_CORRIENTE" },
+                      indicadorCounts: {
+                        $push: "$INDICADOR",
+                      },
+                      descripcionTipoProductoCounts: {
+                        $push: "$DESCRIPCION_TIPO_PRODUCTO",
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $project: {
+                data: 1,
+                totalCount: { $arrayElemAt: ["$metadata.totalCount", 0] },
+                totalDeudaCorriente: {
+                  $ifNull: [
+                    { $arrayElemAt: ["$metadata.totalDeudaCorriente", 0] },
+                    0,
+                  ],
+                },
+                indicadorCounts: {
+                  Normalizacion: {
+                    $size: {
+                      $filter: {
+                        input: {
+                          $arrayElemAt: ["$metadata.indicadorCounts", 0],
+                        },
+                        as: "ind",
+                        cond: { $eq: ["$$ind", "Normalizacion"] },
+                      },
+                    },
+                  },
+                  Contencion: {
+                    $size: {
+                      $filter: {
+                        input: {
+                          $arrayElemAt: ["$metadata.indicadorCounts", 0],
+                        },
+                        as: "ind",
+                        cond: { $eq: ["$$ind", "Contencion"] },
+                      },
+                    },
+                  },
+                  Castigado: {
+                    $size: {
+                      $filter: {
+                        input: {
+                          $arrayElemAt: ["$metadata.indicadorCounts", 0],
+                        },
+                        as: "ind",
+                        cond: { $eq: ["$$ind", "Castigado"] },
+                      },
+                    },
+                  },
+                },
+                descripcionTipoProductoCounts: {
+                  GAS: {
+                    $size: {
+                      $filter: {
+                        input: {
+                          $arrayElemAt: [
+                            "$metadata.descripcionTipoProductoCounts",
+                            0,
+                          ],
+                        },
+                        as: "prod",
+                        cond: { $eq: ["$$prod", "GAS"] },
+                      },
+                    },
+                  },
+                  BRILLA: {
+                    $size: {
+                      $filter: {
+                        input: {
+                          $arrayElemAt: [
+                            "$metadata.descripcionTipoProductoCounts",
+                            0,
+                          ],
+                        },
+                        as: "prod",
+                        cond: { $eq: ["$$prod", "BRILLA SURTIGAS"] },
+                      },
+                    },
+                  },
+                  SERVICIOS_FINANCIEROS: {
+                    $size: {
+                      $filter: {
+                        input: {
+                          $arrayElemAt: [
+                            "$metadata.descripcionTipoProductoCounts",
+                            0,
+                          ],
+                        },
+                        as: "prod",
+                        cond: { $eq: ["$$prod", "SERVICIOS FINANCIEROS"] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ])
+          .toArray()
+      : {};
+
+    console.log(totales);
+    return { ...pages, totales };
   },
 });
