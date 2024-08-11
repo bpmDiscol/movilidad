@@ -55,9 +55,7 @@ postRoutes.route("/login", function (params, req, res, next) {
       return;
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ token }));
@@ -71,20 +69,44 @@ postRoutes.route("/refresh-token", function (params, req, res, next) {
   const { token } = req.body;
 
   try {
-    // Verifica el token actual
-    const decoded = jwt.verify(token, JWT_SECRET);
+    // Decodifica el token sin verificar la expiración
+    const decoded = jwt.decode(token, { complete: true });
+
+    if (!decoded) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid token" }));
+      return;
+    }
+
+    // Verifica el token para comprobar si ha expirado
+    jwt.verify(token, JWT_SECRET, { ignoreExpiration: true });
 
     // Genera un nuevo token
-    const newToken = jwt.sign({ userId: decoded.userId }, JWT_SECRET, {
+    const newToken = jwt.sign({ userId: decoded.payload.userId }, JWT_SECRET, {
       expiresIn: "24h",
     });
 
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ token: newToken }));
   } catch (e) {
-    // Si el token es inválido o ha expirado, devuelve un error
-    res.writeHead(401, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ message: "Invalid or expired token" }));
+    if (e.name === "TokenExpiredError") {
+      // Si el token ha expirado, genera un nuevo token
+      const decoded = jwt.decode(token, { complete: true });
+      const newToken = jwt.sign(
+        { userId: decoded.payload.userId },
+        JWT_SECRET,
+        {
+          expiresIn: "24h",
+        }
+      );
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ token: newToken }));
+    } else {
+      // Si el token es inválido, devuelve un error
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid token" }));
+    }
   }
 });
 

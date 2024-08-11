@@ -16,13 +16,24 @@ function formatDate(date) {
 
 Meteor.methods({
   async createRecord(record) {
-    return await recordsCollection
-      .updateAsync(
+    try {
+      const existingDocument = await recordsCollection.findOneAsync({
+        NUMERO_DE_LA_ORDEN: record["NUMERO_DE_LA_ORDEN"],
+      });
+
+      await recordsCollection.updateAsync(
         { NUMERO_DE_LA_ORDEN: record["NUMERO_DE_LA_ORDEN"] },
-        { $setOnInsert: record },
+        { $set: record },
         { upsert: true }
-      )
-      .catch((e) => console.log(e));
+      );
+      const wasInserted = !existingDocument;
+      // const wasUpdated = existingDocument && result > 0;
+      // Check if the record was modified
+      return { success: true, wasInserted };
+    } catch (e) {
+      console.log(e);
+      return { success: false };
+    }
   },
   async getRecords(page, pageSize, filters = {}, sort) {
     page = parseInt(page, 10) || 1;
