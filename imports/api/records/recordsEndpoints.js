@@ -178,8 +178,7 @@ postRoutes.route("/management/photos/:orden", function (params, req, res) {
 
       const fotos = [foto1, foto2].map((photo) => {
         if (!photo) return null;
-        const fileId =
-          (Math.random() * 1000000).toString + "-" + Date.now().toString();
+        const fileId = Math.random() + "-" + Date.now().toString();
 
         // Guarda la foto en la colección
         photosCollection.write(photo.buffer, {
