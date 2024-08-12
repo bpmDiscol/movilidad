@@ -5,6 +5,8 @@ import { photosCollection } from "../photos/photosCollection";
 import multer from "multer";
 import jwt from "jsonwebtoken";
 
+import { Random } from 'meteor/random'
+
 import { recordsCollection } from "./recordsCollection";
 import moment from "moment";
 let system = 0;
@@ -178,7 +180,7 @@ postRoutes.route("/management/photos/:orden", function (params, req, res) {
 
       const fotos = [foto1, foto2].map((photo) => {
         if (!photo) return null;
-        const fileId = Math.random() + "-" + Date.now().toString();
+        const fileId = Random.secret();
 
         // Guarda la foto en la colección
         photosCollection.write(photo.buffer, {
