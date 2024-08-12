@@ -55,6 +55,7 @@ export default function ReportTable({ report, managers }) {
       <Table
         dataSource={reporte}
         pagination={false}
+        rowKey={() => Math.random()}
         rowClassName={(_, index) =>
           index % 2 === 0 ? "ant-table-row-alternate" : "ant-table-row-base"
         }

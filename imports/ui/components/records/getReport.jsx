@@ -9,7 +9,7 @@ import "./records.css";
 import MainTable from "./mainTable";
 import ReportTable from "./reportTable";
 
-const { Text, Title } = Typography;
+const { Text, Title, Link } = Typography;
 
 export default function GetReport() {
   const [dataSource, setDataSource] = useState([]);
@@ -55,12 +55,21 @@ export default function GetReport() {
           : null,
         managersIds: managers,
       },
-      (error, result) => {
+      async (error, result) => {
         if (error) {
           console.error("Error fetching report:", error);
         } else {
-          const updatedResult = result[0].data.map((record) => {
+          const updatedResult = await result[0].data.map(async (record) => {
             const { ubicacion, period, fotos, ...update } = record;
+            const photoPromises = fotos
+              ? fotos.map((photoId) => Meteor.callAsync("getFileLink", photoId))
+              : null;
+            const FOTOS = photoPromises
+              ? await Promise.all(photoPromises)
+                  .then((photos) => photos.flat(1).map((p) => p.link))
+                  .catch(() => "Error")
+              : [];
+
             return {
               ...update,
               GESTOR:
@@ -69,16 +78,15 @@ export default function GetReport() {
               PERIODO: convertDate(record.period),
               LATITUD: record.ubicacion?.latitud,
               LONGITUD: record.ubicacion?.longitud,
-              FOTOS: ["a8Fj4fJPisJmyFYxa", "1723071020010"].map(
-                async (photoId) =>
-                  await Meteor.callAsync("getFileLink", photoId).catch(
-                    () => "error in file"
-                  )
-              ),
+              FOTOS,
             };
           });
 
-          setDataSource(updatedResult);
+          const resolved = await Promise.all(updatedResult)
+            .then((photos) => photos)
+            .catch(() => "error");
+
+          setDataSource(resolved);
           setReport(result.report[0]);
           setTotales(result.totales[0]);
           setPagination((prev) => ({
@@ -152,10 +160,10 @@ export default function GetReport() {
             "updatedAt",
           ].includes(key)
       )
-      .map((key) => ({
+      .map((key, idx) => ({
         title: key.toUpperCase(),
         dataIndex: key,
-        key: key,
+        key: key + idx,
         width: 200,
         fixed: key === "GESTOR",
         elipsis: true,
@@ -165,14 +173,33 @@ export default function GetReport() {
             const manager = managers.find(
               (manager) => manager.id === record[key]
             );
-            return <Text>{manager ? manager.username : text}</Text>;
+            return (
+              <Text key={key + idx}>{manager ? manager.username : text}</Text>
+            );
           }
-          if (key === "PERIODO") return <Text code>{text}</Text>;
+          if (key === "PERIODO")
+            return (
+              <Text key={key + idx} code>
+                {text}
+              </Text>
+            );
           if (key === "fecha_gestion")
-            return <Text code>{moment(text).format("DD/MM/YYYY")}</Text>;
+            return (
+              <Text key={key + idx} code>
+                {moment(text).format("DD/MM/YYYY")}
+              </Text>
+            );
           if (key === "FOTOS")
-            return text.map((link) => <Text code>{JSON.stringify(link)}</Text>);
-          return <Text>{text}</Text>;
+            return (
+              <Flex vertical>
+                {text.map((link, ind) => (
+                  <Link href={link} target="_blank" key={ind}>
+                    Foto {ind + 1}
+                  </Link>
+                ))}
+              </Flex>
+            );
+          return <Text key={key + idx}>{text}</Text>;
         },
       }));
   };
@@ -250,7 +277,7 @@ export default function GetReport() {
         }}
       >
         <Flex>
-          <Text italic>
+          <Text italic strong style={{ color: "red" }}>
             Total deuda corriente: $
             {formatNumber(totales?.totalDeudaCorriente || 0)}
           </Text>
