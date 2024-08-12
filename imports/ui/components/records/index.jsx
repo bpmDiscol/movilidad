@@ -552,7 +552,6 @@ export default function Records() {
         }
         className="ant-table"
       />
-      ;
     </div>
   );
 }

@@ -1,13 +1,4 @@
-import {
-  Affix,
-  Button,
-  DatePicker,
-  Flex,
-  Select,
-  Space,
-  Table,
-  Typography,
-} from "antd";
+import { Affix, Button, DatePicker, Flex, Select, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { Meteor } from "meteor/meteor";
@@ -68,13 +59,25 @@ export default function GetReport() {
         if (error) {
           console.error("Error fetching report:", error);
         } else {
-          const updatedResult = result[0].data.map((record) => ({
-            ...record,
-            GESTOR:
-              managers.find((manager) => manager.id === record.GESTOR)
-                ?.username || record.GESTOR,
-            period: convertDate(record.period),
-          }));
+          const updatedResult = result[0].data.map((record) => {
+            const { ubicacion, period, fotos, ...update } = record;
+            return {
+              ...update,
+              GESTOR:
+                managers.find((manager) => manager.id === record.GESTOR)
+                  ?.username || record.GESTOR,
+              PERIODO: convertDate(record.period),
+              LATITUD: record.ubicacion?.latitud,
+              LONGITUD: record.ubicacion?.longitud,
+              FOTOS: ["a8Fj4fJPisJmyFYxa", "1723071020010"].map(
+                async (photoId) =>
+                  await Meteor.callAsync("getFileLink", photoId).catch(
+                    () => "error in file"
+                  )
+              ),
+            };
+          });
+
           setDataSource(updatedResult);
           setReport(result.report[0]);
           setTotales(result.totales[0]);
@@ -164,9 +167,11 @@ export default function GetReport() {
             );
             return <Text>{manager ? manager.username : text}</Text>;
           }
-          if (key === "period") return <Text code>{text}</Text>;
+          if (key === "PERIODO") return <Text code>{text}</Text>;
           if (key === "fecha_gestion")
             return <Text code>{moment(text).format("DD/MM/YYYY")}</Text>;
+          if (key === "FOTOS")
+            return text.map((link) => <Text code>{JSON.stringify(link)}</Text>);
           return <Text>{text}</Text>;
         },
       }));
@@ -174,8 +179,12 @@ export default function GetReport() {
 
   return (
     <Flex vertical>
-      <Affix offsetTop={120} >
-        <Flex align="center" justify="space-between" style={{backgroundColor:'whitesmoke', padding:'10px'}}>
+      <Affix offsetTop={120}>
+        <Flex
+          align="center"
+          justify="space-between"
+          style={{ backgroundColor: "whitesmoke", padding: "10px" }}
+        >
           <Select
             placeholder="Gestor"
             style={{ width: 200 }}
@@ -216,7 +225,11 @@ export default function GetReport() {
           </Button>
         </Flex>
       </Affix>
-      <Flex align="center" justify="space-between" style={{paddingTop:'32px'}}>
+      <Flex
+        align="center"
+        justify="space-between"
+        style={{ paddingTop: "32px" }}
+      >
         <Title>Reporte general</Title>
         <Button
           type="primary"
