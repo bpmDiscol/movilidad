@@ -1,7 +1,8 @@
 import {
+  Affix,
   Button,
   DatePicker,
-  Input,
+  Flex,
   Select,
   Space,
   Table,
@@ -12,8 +13,12 @@ import moment from "moment";
 import { Meteor } from "meteor/meteor";
 import XLSX from "xlsx";
 import convertDate from "../../utils/convertDate";
+import formatNumber from "../../utils/formatNumbers";
+import "./records.css";
+import MainTable from "./mainTable";
+import ReportTable from "./reportTable";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 export default function GetReport() {
   const [dataSource, setDataSource] = useState([]);
@@ -23,6 +28,8 @@ export default function GetReport() {
   const [date, setDate] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [report, setReport] = useState();
+  const [totales, setTotales] = useState();
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 5,
@@ -55,9 +62,9 @@ export default function GetReport() {
         endDate: endDate
           ? moment(endDate, "DD/MM/YYYY").format("DD/MM/YYYY")
           : null,
+        managersIds: managers,
       },
       (error, result) => {
-        console.log("🚀 ~ fetchReport ~ result:", result);
         if (error) {
           console.error("Error fetching report:", error);
         } else {
@@ -69,6 +76,8 @@ export default function GetReport() {
             period: convertDate(record.period),
           }));
           setDataSource(updatedResult);
+          setReport(result.report[0]);
+          setTotales(result.totales[0]);
           setPagination((prev) => ({
             ...prev,
             current: page,
@@ -113,6 +122,8 @@ export default function GetReport() {
             managers.find((manager) => manager.id === record.GESTOR)
               ?.username || record.GESTOR,
           PERIODO: convertDate(record.period),
+          LATITUD: record.ubicacion?.latitud,
+          LONGITUD: record.ubicacion?.longitud,
         }));
 
         const ws = XLSX.utils.json_to_sheet(updatedResult);
@@ -162,46 +173,51 @@ export default function GetReport() {
   };
 
   return (
-    <div>
-      <Space style={{ marginBottom: 16 }}>
-        <Select
-          placeholder="Gestor"
-          style={{ width: 200 }}
-          onChange={(value) => setSelectedManager(value)}
-          allowClear
-        >
-          {managers.map((manager) => (
-            <Select.Option key={manager.id} value={manager.id}>
-              {manager.username}
-            </Select.Option>
-          ))}
-        </Select>
-        <DatePicker
-          onChange={(date) =>
-            setPeriod(JSON.stringify(date).replace(/["']/g, ""))
-          }
-          format="YYYY-MM-DD"
-          placeholder="Periodo asignado"
-        />
-        <DatePicker
-          onChange={(date, dateString) => setDate(dateString)}
-          format="DD/MM/YYYY"
-          placeholder="Fecha de gestion"
-        />
-        <DatePicker.RangePicker
-          onChange={(dates, dateStrings) => {
-            setStartDate(dateStrings[0]);
-            setEndDate(dateStrings[1]);
-          }}
-          format="DD/MM/YYYY"
-          placeholder={["Inicio", "Final"]}
-        />
-        <Button
-          type="primary"
-          onClick={() => fetchReport(1, pagination.pageSize)}
-        >
-          Buscar Reportes
-        </Button>
+    <Flex vertical>
+      <Affix offsetTop={120} >
+        <Flex align="center" justify="space-between" style={{backgroundColor:'whitesmoke', padding:'10px'}}>
+          <Select
+            placeholder="Gestor"
+            style={{ width: 200 }}
+            onChange={(value) => setSelectedManager(value)}
+            allowClear
+          >
+            {managers.map((manager) => (
+              <Select.Option key={manager.id} value={manager.id}>
+                {manager.username}
+              </Select.Option>
+            ))}
+          </Select>
+          <DatePicker
+            onChange={(date) =>
+              setPeriod(JSON.stringify(date).replace(/["']/g, ""))
+            }
+            format="YYYY-MM-DD"
+            placeholder="Periodo asignado"
+          />
+          <DatePicker
+            onChange={(date, dateString) => setDate(dateString)}
+            format="DD/MM/YYYY"
+            placeholder="Fecha de gestion"
+          />
+          <DatePicker.RangePicker
+            onChange={(_, dateStrings) => {
+              setStartDate(dateStrings[0]);
+              setEndDate(dateStrings[1]);
+            }}
+            format="DD/MM/YYYY"
+            placeholder={["Inicio", "Final"]}
+          />
+          <Button
+            type="primary"
+            onClick={() => fetchReport(1, pagination.pageSize)}
+          >
+            Buscar Reportes
+          </Button>
+        </Flex>
+      </Affix>
+      <Flex align="center" justify="space-between" style={{paddingTop:'32px'}}>
+        <Title>Reporte general</Title>
         <Button
           type="primary"
           onClick={handleExport}
@@ -209,30 +225,55 @@ export default function GetReport() {
         >
           Exportar a Excel
         </Button>
-      </Space>
-      <Table
-        bordered
-        columns={getColumns()}
-        dataSource={dataSource}
-        rowKey={(record) => record._id}
-        pagination={{
-          ...pagination,
-          showTotal: (total) => (
-            <Text
-              keyboard
-              type="danger"
-            >{`${total} Resultados encontrados `}</Text>
-          ),
-          position: ["topLeft"],
+      </Flex>
+      <Flex
+        align="end"
+        gap={10}
+        style={{
+          position: "relative",
+          right: "-55%",
+          top: "40px",
+          visibility: totales ? "visible" : "hidden",
         }}
-        onChange={handleTableChange}
-        scroll={{
-          x: 100,
-          y: "50dvh",
-        }}
-        style={{ width: "100vw", overflowX: "auto" }}
-        size="small"
-      />
-    </div>
+      >
+        <Flex>
+          <Text italic>
+            Total deuda corriente: $
+            {formatNumber(totales?.totalDeudaCorriente || 0)}
+          </Text>
+        </Flex>
+        <Flex vertical>
+          <Text strong>Indicador</Text>
+
+          <Text italic>
+            Normalización: {totales?.indicadorCounts.Normalizacion}
+          </Text>
+          <Text italic>Contención: {totales?.indicadorCounts.Contencion}</Text>
+          <Text italic>Castigados: {totales?.indicadorCounts.Castigado}</Text>
+        </Flex>
+        <Flex vertical>
+          <Text strong>Tipo de servicio</Text>
+          <Text italic>Gas {totales?.descripcionTipoProductoCounts.GAS}</Text>
+          <Text italic>
+            Brilla Surtigas {totales?.descripcionTipoProductoCounts.BRILLA}
+          </Text>
+          <Text italic>
+            Servicios financieros{" "}
+            {totales?.descripcionTipoProductoCounts.SERVICIOS_FINANCIEROS}
+          </Text>
+        </Flex>
+      </Flex>
+      <Flex vertical gap={32}>
+        <MainTable
+          dataSource={dataSource}
+          handleTableChange={handleTableChange}
+          pagination={pagination}
+          getColumns={getColumns}
+        />
+        {managers && report && (
+          <ReportTable report={report} managers={managers} />
+        )}
+      </Flex>
+    </Flex>
   );
 }

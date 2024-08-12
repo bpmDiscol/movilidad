@@ -80,7 +80,6 @@ Meteor.methods({
     };
   },
   async updateRecordManager(recordId, managerId) {
-    console.log({ recordId, managerId });
     return await recordsCollection.updateAsync(
       { NUMERO_DE_LA_ORDEN: recordId },
       { $set: { GESTOR: managerId } },
@@ -97,6 +96,7 @@ Meteor.methods({
     endDate,
     sortField,
     sortOrder = 1,
+    managerIds,
   }) {
     let query = {};
 
@@ -153,7 +153,6 @@ Meteor.methods({
         },
       ])
       .toArray();
-    console.log(pages);
 
     const totales = pages[0].totalCount
       ? await recordsCollection
@@ -275,7 +274,81 @@ Meteor.methods({
           .toArray()
       : {};
 
-    console.log(totales);
-    return { ...pages, totales };
+    if (managerIds && managerIds.length) {
+      query["GESTOR"] = { $in: managerIds };
+    }
+
+    const report = pages[0].totalCount
+      ? await recordsCollection
+          .rawCollection()
+          .aggregate([
+            { $match: query },
+            {
+              $group: {
+                _id: "$GESTOR",
+                asignadas: { $sum: 1 },
+                totalDeudaCorrienteAsignada: { $sum: "$TOTAL_DEUDA_CORRIENTE" },
+                gestionadas: {
+                  $sum: {
+                    $cond: [{ $eq: ["$reviewed", true] }, 1, 0],
+                  },
+                },
+                totalDeudaCorrienteGestionada: {
+                  $sum: {
+                    $cond: [
+                      { $eq: ["$reviewed", true] },
+                      "$TOTAL_DEUDA_CORRIENTE",
+                      0,
+                    ],
+                  },
+                },
+                pendientes: {
+                  $sum: {
+                    $cond: [{ $eq: ["$reviewed", false] }, 1, 0],
+                  },
+                },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                totalAsignadas: { $sum: "$asignadas" },
+                totalDeudaCorrienteAsignada: {
+                  $sum: "$totalDeudaCorrienteAsignada",
+                },
+                totalGestionadas: { $sum: "$gestionadas" },
+                totalDeudaCorrienteGestionada: {
+                  $sum: "$totalDeudaCorrienteGestionada",
+                },
+                totalPendientes: { $sum: "$pendientes" },
+                gestores: {
+                  $push: {
+                    gestor: "$_id",
+                    asignadas: "$asignadas",
+                    totalDeudaCorrienteAsignada: "$totalDeudaCorrienteAsignada",
+                    gestionadas: "$gestionadas",
+                    totalDeudaCorrienteGestionada:
+                      "$totalDeudaCorrienteGestionada",
+                    pendientes: "$pendientes",
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                totalAsignadas: 1,
+                totalDeudaCorrienteAsignada: 1,
+                totalGestionadas: 1,
+                totalDeudaCorrienteGestionada: 1,
+                totalPendientes: 1,
+                gestores: 1,
+              },
+            },
+          ])
+          .toArray()
+      : {};
+
+    return { ...pages, totales, report };
   },
 });

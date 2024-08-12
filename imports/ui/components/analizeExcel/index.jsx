@@ -79,6 +79,7 @@ export default function AnalizeExcel() {
             DESCRIPCION_TIPO_PRODUCTO: record["DESCRIPCION_TIPO_PRODUCTO"]
               ? record["DESCRIPCION_TIPO_PRODUCTO"].toUpperCase()
               : "",
+            reviewed: false,
           };
 
           Meteor.call("createRecord", normalizedRecord, (err, result) => {

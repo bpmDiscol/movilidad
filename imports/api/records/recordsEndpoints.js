@@ -176,18 +176,16 @@ postRoutes.route("/management/photos/:orden", function (params, req, res) {
       const foto1 = req.files["foto1"] ? req.files["foto1"][0] : null;
       const foto2 = req.files["foto2"] ? req.files["foto2"][0] : null;
 
-      const fotos = [foto1, foto2].map((photo) => {
+      const fotos = [foto1, foto2].map(async (photo) => {
         if (!photo) return null;
-        const fileId = Date.now().toString();
 
         // Guarda la foto en la colección
-        photosCollection.write(photo.buffer, {
+        const { insertedId } = await photosCollection.insertOne(photo.buffer, {
           fileName: photo.originalname,
           type: photo.mimetype,
-          fileId,
         });
 
-        return fileId;
+        return insertedId.toString();
       });
 
       // Actualiza el registro en la colección con el array de fotos

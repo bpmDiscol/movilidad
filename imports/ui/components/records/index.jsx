@@ -19,12 +19,13 @@ import Highlighter from "react-highlight-words";
 import "./records.css";
 import formatIfNumber from "../../utils/formatIfNumber";
 import moment from "moment";
+import ExcelAssignButton from "../excelAssignButton";
 
 const { Text } = Typography;
 
 export default function Records() {
+  const [reload, setReload] = useState(0);
   const [dataSource, setDataSource] = useState([]);
-  console.log("🚀 ~ Records ~ dataSource:", dataSource)
   const [managers, setManagers] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -37,7 +38,7 @@ export default function Records() {
   const [searchKeys, setSearchKeys] = useState({});
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedManager, setSelectedManager] = useState(null);
-  
+
   const voidSorter = { sortField: null, sortOrder: 1 };
   const fetchRecords = (page, pageSize, search, sort = voidSorter) => {
     Meteor.call("getRecords", page, pageSize, search, sort, (err, resp) => {
@@ -116,7 +117,7 @@ export default function Records() {
       value,
       (error) => {
         if (error) {
-          console.error("Error updating manager:", error);
+          message.error("Error asignando gestor");
         } else {
           const newDataSource = dataSource.map((item) => {
             if (item._id === record._id) {
@@ -490,7 +491,7 @@ export default function Records() {
       }
     });
     fetchRecords(pagination.current, pagination.pageSize);
-  }, [pagination.pageSize]);
+  }, [pagination.pageSize, reload]);
 
   return (
     <div>
@@ -501,6 +502,7 @@ export default function Records() {
           placeholder="Fecha"
           onEmptied={handleDateChange}
         />
+        <ExcelAssignButton managers={managers} setReload={setReload} />
         {selectedRowKeys.length > 0 && (
           <>
             <Select
@@ -548,6 +550,7 @@ export default function Records() {
         rowClassName={(_, index) =>
           index % 2 === 0 ? "ant-table-row-alternate" : "ant-table-row-base"
         }
+        className="ant-table"
       />
       ;
     </div>
