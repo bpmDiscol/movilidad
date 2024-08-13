@@ -87,6 +87,15 @@ export default function ReportTable({ report, managers }) {
             </Text>
           )}
         />
+         <Table.Column
+          title="Gestionadas"
+          dataIndex={"gestionadas"}
+          render={(value, _, index) => (
+            <Text strong={index == reporte.length - 1}>
+              ${formatNumber(value)}
+            </Text>
+          )}
+        />
         <Table.Column
           title="Deuda corriente gestionada"
           dataIndex={"totalDeudaCorrienteGestionada"}

@@ -3,7 +3,8 @@ import settings from "../settings.json";
 
 import "../imports/api/records/recordsIndex";
 import "../imports/api/photos/photosIndex";
-import "../imports/api/roles/rolesMethods"
+import "../imports/api/roles/rolesMethods";
+import "../imports/api/documents/documentsIndex";
 
 Meteor.startup(async () => {
   const admin = Meteor.users.findOne({ username: settings.private.admin.user });

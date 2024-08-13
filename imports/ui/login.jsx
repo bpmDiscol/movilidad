@@ -1,15 +1,15 @@
 import React, { useContext } from "react";
 import { Button, Flex, Form, Input, Typography } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { loginDiscol } from "./services/auth";
 import { NotificationContext } from "./contexts/notificationContext";
 
 export default function Login() {
   const { Title, Text } = Typography;
   const { alertMessage } = useContext(NotificationContext);
+
   const onFinish = ({ username, password }) => {
     Meteor.loginWithPassword(username, password , (resp) => {
-      if (resp.error)
+      if (resp?.error)
         alertMessage({
           type: "error",
           message: "Ha ocurrido un error",

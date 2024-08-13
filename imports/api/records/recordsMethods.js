@@ -110,7 +110,7 @@ Meteor.methods({
 
     if (date) {
       // Normaliza la fecha proporcionada a un objeto Date
-      const normalizedDate = moment(date, "DD/MM/YYYY").startOf("day").toDate();
+      const normalizedDate = moment(date, "DD/MM/YYYY").toISOString();
 
       query["fecha_gestion"] = normalizedDate;
     }
@@ -290,13 +290,13 @@ Meteor.methods({
                 totalDeudaCorrienteAsignada: { $sum: "$TOTAL_DEUDA_CORRIENTE" },
                 gestionadas: {
                   $sum: {
-                    $cond: [{ $eq: ["$reviewed", true] }, 1, 0],
+                    $cond: [{ $eq: ["$status", "reviewed"] }, 1, 0],
                   },
                 },
                 totalDeudaCorrienteGestionada: {
                   $sum: {
                     $cond: [
-                      { $eq: ["$reviewed", true] },
+                      { $eq: ["$status", "reviewed"] },
                       "$TOTAL_DEUDA_CORRIENTE",
                       0,
                     ],
@@ -304,7 +304,7 @@ Meteor.methods({
                 },
                 pendientes: {
                   $sum: {
-                    $cond: [{ $eq: ["$reviewed", false] }, 1, 0],
+                    $cond: [{ $eq: ["$status", "pending"] }, 1, 0],
                   },
                 },
               },

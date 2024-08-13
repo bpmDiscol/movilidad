@@ -4,7 +4,7 @@ export default function normalizedRecords(record) {
   const normalizedRecord = {};
   Object.keys(record).forEach((key) => {
     const normalizedKey = normalizeKey(key);
-    normalizedRecord[normalizedKey] = record[key].toString();
+    normalizedRecord[normalizedKey] = record[key];
   });
   return normalizedRecord;
 }

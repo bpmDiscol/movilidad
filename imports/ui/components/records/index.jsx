@@ -480,6 +480,12 @@ export default function Records() {
       width: 180,
       ...getColumnSearchProps("INDICADOR"),
     },
+    {
+      title: "Periodo",
+      dataIndex: "period",
+      width: 180,
+      render: (text) => moment(text).format("DD/MM/YYYY"),
+    },
   ];
 
   useEffect(() => {

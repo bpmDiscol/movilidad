@@ -7,6 +7,7 @@ import {
   Input,
   message,
   Progress,
+  Spin,
   Upload,
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
@@ -14,6 +15,7 @@ import { InboxOutlined } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import checkKeys from "./checkKkeys";
 import normalizedRecords from "./normalizeRecords";
+import List from "./list";
 
 const { Dragger } = Upload;
 
@@ -24,6 +26,9 @@ export default function AnalizeExcel() {
   const [progressStatus, setProgressStatus] = useState("active");
   const [totalUpdates, setTotalUpdates] = useState(0);
   const [displayedProgress, setDisplayedProgress] = useState(0);
+  const [reloading, setReloading] = useState(false);
+  const [reloadList, setReloadList] = useState(0);
+
   function uploadRecords(file) {
     setProgressLevel({ total: 0, current: 0 });
     setTotalUpdates(0);
@@ -79,7 +84,7 @@ export default function AnalizeExcel() {
             DESCRIPCION_TIPO_PRODUCTO: record["DESCRIPCION_TIPO_PRODUCTO"]
               ? record["DESCRIPCION_TIPO_PRODUCTO"].toUpperCase()
               : "",
-            reviewed: false,
+            status: "pending",
           };
 
           Meteor.call("createRecord", normalizedRecord, (err, result) => {
@@ -99,6 +104,7 @@ export default function AnalizeExcel() {
             setTotalUpdates(successfulUpdates);
           });
         });
+        console.log(successfulUpdates);
       };
     });
   }
@@ -127,20 +133,49 @@ export default function AnalizeExcel() {
     if (progressLevel && progressLevel.total && progressLevel.current) {
       const targetProgress =
         (progressLevel.current / progressLevel.total) * 100;
-      const increment = (targetProgress - displayedProgress) / 10;
-      const interval = setInterval(() => {
+      const increment = (targetProgress - displayedProgress) / 1;
+      const interval = Meteor.setInterval(() => {
         setDisplayedProgress((prev) => {
           const nextValue = prev + increment;
           if (nextValue >= targetProgress) {
-            clearInterval(interval);
+            Meteor.clearInterval(interval);
             return targetProgress;
           }
           return nextValue;
         });
-      }, 100); // Adjust this value for smoother/slower animation
+      }, 10); // Adjust this value for smoother/slower animation
+
+      function update() {
+        addDocument(totalUpdates);
+        setReloading(false);
+        setReloadList(Math.random());
+      }
+
+      if ((progressLevel.current / progressLevel.total) * 100 == 100) {
+        if (totalUpdates == 0)
+          message.warning("No hay elementos que actualizar");
+        if (totalUpdates > 0) {
+          setReloading(true);
+          Meteor.setTimeout(update, 1000);
+        }
+      }
+
       return () => clearInterval(interval);
     }
   }, [progressLevel]);
+
+  async function addDocument(updates) {
+    const { chargeFile, ...fields } = form.getFieldsValue();
+    const { period, ...extra } = fields;
+    const extrafields = {
+      ...extra,
+      period: JSON.stringify(period).replace(/["']/g, ""),
+    };
+    await Meteor.callAsync("createDocument", { ...extrafields, updates }).catch(
+      () => message.error("Error al cargar registro")
+    );
+  }
+
   return (
     <Form
       form={form}
@@ -158,6 +193,7 @@ export default function AnalizeExcel() {
         justify="center"
         style={{ width: "100%", height: "70dvh" }}
       >
+        <Spin fullscreen spinning={reloading} />
         <Flex vertical>
           <Form.Item
             name={"managementType"}
@@ -205,7 +241,7 @@ export default function AnalizeExcel() {
               placeholder="Selecciona un periodo"
               style={{ width: "20rem" }}
               showNow={false}
-              format={"YYYY/MM/DD"}
+              format={"DD/MM/YYYY"}
             />
           </Form.Item>
           <Form.Item>
@@ -251,6 +287,7 @@ export default function AnalizeExcel() {
           </Form.Item>
         </Flex>
       </Flex>
+      <List key={reloadList} />
     </Form>
   );
 }
