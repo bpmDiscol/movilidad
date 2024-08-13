@@ -287,7 +287,7 @@ Meteor.methods({
               $group: {
                 _id: "$GESTOR",
                 asignadas: { $sum: 1 },
-                totalDeudaCorrienteAsignada: { $sum: "$TOTAL_DEUDA_CORRIENTE" },
+                totalDeudaCorrienteAsignada: {$sum: { $toDouble: "$TOTAL_DEUDA_CORRIENTE" }},
                 gestionadas: {
                   $sum: {
                     $cond: [{ $eq: ["$status", "reviewed"] }, 1, 0],
@@ -297,7 +297,7 @@ Meteor.methods({
                   $sum: {
                     $cond: [
                       { $eq: ["$status", "reviewed"] },
-                      "$TOTAL_DEUDA_CORRIENTE",
+                      { $toDouble: "$TOTAL_DEUDA_CORRIENTE" },
                       0,
                     ],
                   },
