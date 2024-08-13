@@ -12,6 +12,9 @@ Meteor.methods({
       .rawCollection()
       .aggregate([
         {
+          $sort: { createdAt: 1 },
+        },
+        {
           $facet: {
             metadata: [{ $count: "totalCount" }],
             data: [{ $skip: (page - 1) * pageSize }, { $limit: pageSize }],
