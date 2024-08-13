@@ -6,7 +6,7 @@ export default function List() {
   const [dataSource, setDataSource] = useState();
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 1,
+    pageSize: 10,
     total: 0,
   });
 
