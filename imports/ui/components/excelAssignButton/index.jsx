@@ -21,8 +21,8 @@ export default function ExcelAssignButton({ managers, setReload }) {
         { header: 1 }
       );
 
-      // Omitir las dos primeras filas
-      const rows = worksheet.slice(2);
+      // const rows = worksheet.slice(1);
+      const rows = worksheet
 
       const gestoresNoExistentes = new Set();
 

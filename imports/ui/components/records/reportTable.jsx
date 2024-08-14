@@ -32,8 +32,8 @@ export default function ReportTable({ report, managers }) {
       Asignadas: report.asignadas,
       Gestionadas: report.gestionadas,
       Pendientes: report.pendientes,
-      "Total deuda corriente asignada": report.totalDeudaCorrienteAsignada,
-      "Total deuda corriente gestionada": report.totalDeudaCorrienteGestionada,
+      "Total deuda asignada": report.totalDeudaCorrienteAsignada,
+      "Total deuda gestionada": report.totalDeudaCorrienteGestionada,
     }));
     console.log(updatedResult);
 
@@ -79,7 +79,7 @@ export default function ReportTable({ report, managers }) {
           )}
         />
         <Table.Column
-          title="Deuda corriente asignada"
+          title="Deuda total asignada"
           dataIndex={"totalDeudaCorrienteAsignada"}
           render={(value, _, index) => (
             <Text strong={index == reporte.length - 1}>
@@ -97,7 +97,7 @@ export default function ReportTable({ report, managers }) {
           )}
         />
         <Table.Column
-          title="Deuda corriente gestionada"
+          title="Deuda total gestionada"
           dataIndex={"totalDeudaCorrienteGestionada"}
           render={(value, _, index) => (
             <Text strong={index == reporte.length - 1}>

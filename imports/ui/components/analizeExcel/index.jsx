@@ -67,20 +67,20 @@ export default function AnalizeExcel() {
           }
 
           // Cálculo del campo INDICADOR
-          const diasDeudaAsignacion = record["DIAS_DEUDA_ASIGNACION"] || 0;
-          let indicador = "Normalizacion"; // valor por defecto
+          // const diasDeudaAsignacion = record["DIAS_DEUDA_ASIGNACION"] || 0;
+          // let indicador = "Normalizacion"; // valor por defecto
 
-          if (parseInt(diasDeudaAsignacion) + 30 <= 90) {
-            indicador = "Contencion";
-          } else if (parseInt(diasDeudaAsignacion) === 0) {
-            indicador = "Castigado";
-          }
+          // if (parseInt(diasDeudaAsignacion) + 30 <= 90) {
+          //   indicador = "Contencion";
+          // } else if (parseInt(diasDeudaAsignacion) === 0) {
+          //   indicador = "Castigado";
+          // }
 
           const normalizedRecord = {
             ...record,
             ...extrafields,
             TOTAL_DEUDA_CORRIENTE: parseFloat(totalDeudaCorriente),
-            INDICADOR: indicador,
+            // INDICADOR: indicador,
             DESCRIPCION_TIPO_PRODUCTO: record["DESCRIPCION_TIPO_PRODUCTO"]
               ? record["DESCRIPCION_TIPO_PRODUCTO"].toUpperCase()
               : "",

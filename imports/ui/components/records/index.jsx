@@ -486,6 +486,18 @@ export default function Records() {
       width: 180,
       render: (text) => moment(text).format("DD/MM/YYYY"),
     },
+    {
+      title: "Deuda total asignada",
+      dataIndex: "DEUDA_TOTAL_ASIGNADA",
+      width: 180,
+      ...getColumnSearchProps("DEUDA_TOTAL_ASIGNADA"),
+
+    },
+    {
+      title: "Observación",
+      dataIndex: "OBSERVACION",
+      width: 180,
+    },
   ];
 
   useEffect(() => {
@@ -504,8 +516,8 @@ export default function Records() {
       <Space style={{ marginBottom: 16 }}>
         <DatePicker
           onChange={handleDateChange}
-          format="YYYY-MM-DD"
-          placeholder="Fecha"
+          format="DD/MM/YYYY"
+          placeholder="Periodo"
           onEmptied={handleDateChange}
         />
         <ExcelAssignButton managers={managers} setReload={setReload} />

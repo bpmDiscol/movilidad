@@ -45,6 +45,7 @@ export default function checkKeys(obj) {
     "VALIDACIÓN REF PRODUCTO",
     "ÚLTIMA LECTURA TOMADA",
     "ÚLTIMO TIPO COMENTARIO OT",
+    "OBSERVACION"
   ];
 
   return clavesRequeridas.every((clave) => obj.hasOwnProperty(clave));

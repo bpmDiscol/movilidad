@@ -8,6 +8,7 @@ import formatNumber from "../../utils/formatNumbers";
 import "./records.css";
 import MainTable from "./mainTable";
 import ReportTable from "./reportTable";
+import Totals from "./totals";
 
 const { Text, Title, Link } = Typography;
 
@@ -79,6 +80,7 @@ export default function GetReport() {
               LATITUD: record.ubicacion?.latitud,
               LONGITUD: record.ubicacion?.longitud,
               FOTOS,
+              FECHA_DE_GESTION: record.updatedAt
             };
           });
 
@@ -145,78 +147,21 @@ export default function GetReport() {
     );
   };
 
-  const getColumns = () => {
-    if (dataSource.length === 0) return [];
-
-    // Generate columns dynamically from the keys of the first record
-    return Object.keys(dataSource[0])
-      .filter(
-        (key) =>
-          ![
-            "_id",
-            "ULTIMO_TIPO_COMENTARIO_OT",
-            "UNIDAD_OPERATIVA",
-            "VALIDACION_REF_PRODUCTO",
-            "updatedAt",
-          ].includes(key)
-      )
-      .map((key, idx) => ({
-        title: key.toUpperCase(),
-        dataIndex: key,
-        key: key + idx,
-        width: 200,
-        fixed: key === "GESTOR",
-        elipsis: true,
-        render: (text, record) => {
-          if (key === "GESTOR") {
-            // Replace GESTOR ID with the username
-            const manager = managers.find(
-              (manager) => manager.id === record[key]
-            );
-            return (
-              <Text key={key + idx}>{manager ? manager.username : text}</Text>
-            );
-          }
-          if (key === "PERIODO")
-            return (
-              <Text key={key + idx} code>
-                {text}
-              </Text>
-            );
-          if (key === "fecha_gestion")
-            return (
-              <Text key={key + idx} code>
-                {moment(text).format("DD/MM/YYYY")}
-              </Text>
-            );
-          if (key === "FOTOS")
-            return (
-              <Flex vertical>
-                {text.map((link, ind) => (
-                  <Link href={link} target="_blank" key={ind}>
-                    Foto {ind + 1}
-                  </Link>
-                ))}
-              </Flex>
-            );
-          return <Text key={key + idx}>{text}</Text>;
-        },
-      }));
-  };
-
+  
   return (
     <Flex vertical>
       <Affix offsetTop={120}>
         <Flex
           align="center"
           justify="space-between"
-          style={{ backgroundColor: "whitesmoke", padding: "10px" }}
+          style={{ backgroundColor: "#8178ba", padding: "10px" }}
         >
           <Select
             placeholder="Gestor"
             style={{ width: 200 }}
             onChange={(value) => setSelectedManager(value)}
             allowClear
+            // status="warning"
           >
             {managers.map((manager) => (
               <Select.Option key={manager.id} value={manager.id}>
@@ -266,49 +211,13 @@ export default function GetReport() {
           Exportar a Excel
         </Button>
       </Flex>
-      <Flex
-        align="end"
-        gap={10}
-        style={{
-          position: "relative",
-          right: "-55%",
-          top: "40px",
-          visibility: totales ? "visible" : "hidden",
-        }}
-      >
-        <Flex>
-          <Text italic strong style={{ color: "red" }}>
-            Total deuda corriente: $
-            {formatNumber(totales?.totalDeudaCorriente || 0)}
-          </Text>
-        </Flex>
-        <Flex vertical>
-          <Text strong>Indicador</Text>
-
-          <Text italic>
-            Normalización: {totales?.indicadorCounts.Normalizacion}
-          </Text>
-          <Text italic>Contención: {totales?.indicadorCounts.Contencion}</Text>
-          <Text italic>Castigados: {totales?.indicadorCounts.Castigado}</Text>
-        </Flex>
-        <Flex vertical>
-          <Text strong>Tipo de servicio</Text>
-          <Text italic>Gas {totales?.descripcionTipoProductoCounts.GAS}</Text>
-          <Text italic>
-            Brilla Surtigas {totales?.descripcionTipoProductoCounts.BRILLA}
-          </Text>
-          <Text italic>
-            Servicios financieros{" "}
-            {totales?.descripcionTipoProductoCounts.SERVICIOS_FINANCIEROS}
-          </Text>
-        </Flex>
-      </Flex>
+      <Totals totales={totales} />
       <Flex vertical gap={32}>
         <MainTable
           dataSource={dataSource}
           handleTableChange={handleTableChange}
           pagination={pagination}
-          getColumns={getColumns}
+          managers={managers}
         />
         {managers && report && (
           <ReportTable report={report} managers={managers} />

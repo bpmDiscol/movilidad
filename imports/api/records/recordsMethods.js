@@ -110,7 +110,7 @@ Meteor.methods({
 
     if (date) {
       // Normaliza la fecha proporcionada a un objeto Date
-      const normalizedDate = moment(date, "DD/MM/YYYY").toISOString();
+      const normalizedDate = moment(date, "DD/MM/YYYY").startOf("day").toDate();
 
       query["fecha_gestion"] = normalizedDate;
     }
@@ -167,12 +167,14 @@ Meteor.methods({
                   {
                     $group: {
                       _id: null,
-                      totalDeudaCorriente: { $sum: "$TOTAL_DEUDA_CORRIENTE" },
+                      deudaTotalAsignada: {
+                        $sum: { $toDouble: "$DEUDA_TOTAL_ASIGNADA" },
+                      },
                       indicadorCounts: {
-                        $push: "$INDICADOR",
+                        $push: { $toUpper: "$INDICADOR" },
                       },
                       descripcionTipoProductoCounts: {
-                        $push: "$DESCRIPCION_TIPO_PRODUCTO",
+                        $push: { $toUpper: "$DESCRIPCION_TIPO_PRODUCTO" },
                       },
                     },
                   },
@@ -183,9 +185,9 @@ Meteor.methods({
               $project: {
                 data: 1,
                 totalCount: { $arrayElemAt: ["$metadata.totalCount", 0] },
-                totalDeudaCorriente: {
+                deudaTotalAsignada: {
                   $ifNull: [
-                    { $arrayElemAt: ["$metadata.totalDeudaCorriente", 0] },
+                    { $arrayElemAt: ["$metadata.deudaTotalAsignada", 0] },
                     0,
                   ],
                 },
@@ -197,7 +199,7 @@ Meteor.methods({
                           $arrayElemAt: ["$metadata.indicadorCounts", 0],
                         },
                         as: "ind",
-                        cond: { $eq: ["$$ind", "Normalizacion"] },
+                        cond: { $eq: ["$$ind", "NORMALIZACION"] },
                       },
                     },
                   },
@@ -208,7 +210,7 @@ Meteor.methods({
                           $arrayElemAt: ["$metadata.indicadorCounts", 0],
                         },
                         as: "ind",
-                        cond: { $eq: ["$$ind", "Contencion"] },
+                        cond: { $eq: ["$$ind", "CONTENCION"] },
                       },
                     },
                   },
@@ -219,7 +221,7 @@ Meteor.methods({
                           $arrayElemAt: ["$metadata.indicadorCounts", 0],
                         },
                         as: "ind",
-                        cond: { $eq: ["$$ind", "Castigado"] },
+                        cond: { $eq: ["$$ind", "CASTIGADO"] },
                       },
                     },
                   },
@@ -287,7 +289,9 @@ Meteor.methods({
               $group: {
                 _id: "$GESTOR",
                 asignadas: { $sum: 1 },
-                totalDeudaCorrienteAsignada: {$sum: { $toDouble: "$TOTAL_DEUDA_CORRIENTE" }},
+                totalDeudaCorrienteAsignada: {
+                  $sum: { $toDouble: "$DEUDA_TOTAL_ASIGNADA" },
+                },
                 gestionadas: {
                   $sum: {
                     $cond: [{ $eq: ["$status", "reviewed"] }, 1, 0],
@@ -297,7 +301,7 @@ Meteor.methods({
                   $sum: {
                     $cond: [
                       { $eq: ["$status", "reviewed"] },
-                      { $toDouble: "$TOTAL_DEUDA_CORRIENTE" },
+                      { $toDouble: "$DEUDA_TOTAL_ASIGNADA" },
                       0,
                     ],
                   },
