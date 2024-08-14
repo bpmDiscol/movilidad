@@ -1,9 +1,11 @@
 import {
+  Alert,
   Button,
   DatePicker,
   Flex,
   Input,
   message,
+  Modal,
   Select,
   Space,
   Table,
@@ -38,6 +40,11 @@ export default function Records() {
   const [searchKeys, setSearchKeys] = useState({});
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedManager, setSelectedManager] = useState(null);
+  const [managerAlert, setManagerAlert] = useState({
+    open: false,
+    recordId: 0,
+    managerId: 0,
+  });
 
   const voidSorter = { sortField: null, sortOrder: 1 };
   const fetchRecords = (page, pageSize, search, sort = voidSorter) => {
@@ -110,25 +117,11 @@ export default function Records() {
     }));
   };
 
-  const handleManagerChange = (value, record) => {
-    Meteor.call(
-      "updateRecordManager",
-      record.NUMERO_DE_LA_ORDEN,
-      value,
-      (error) => {
-        if (error) {
-          message.error("Error asignando gestor");
-        } else {
-          const newDataSource = dataSource.map((item) => {
-            if (item._id === record._id) {
-              return { ...item, GESTOR: value };
-            }
-            return item;
-          });
-          setDataSource(newDataSource);
-        }
-      }
-    );
+  const handleManagerChange = (recordId, managerId) => {
+    Meteor.call("updateRecordManager", recordId, managerId, (error) => {
+      if (error) message.error("Error asignando gestor");
+      fetchRecords(pagination.current, pagination.pageSize, searchKeys);
+    });
   };
 
   const rowSelection = {
@@ -171,6 +164,14 @@ export default function Records() {
       });
   };
 
+  function handleManagerChangeAlert(value, record) {
+    setManagerAlert({
+      open: true,
+      recordId: record.NUMERO_DE_LA_ORDEN,
+      managerId: value,
+    });
+  }
+
   const getColumnSearchProps = (dataIndex) => {
     return {
       filterDropdown: ({
@@ -191,7 +192,6 @@ export default function Records() {
               placeholder="Selecciona un gestor"
               style={{ width: 200 }}
               onChange={(value) => {
-                console.log(value);
                 handleSearch([value] || [""], confirm, "GESTOR");
               }}
               allowClear
@@ -314,7 +314,7 @@ export default function Records() {
         dataIndex == "GESTOR" ? (
           <Select
             value={record.GESTOR}
-            onChange={(value) => handleManagerChange(value, record)}
+            onChange={(value) => handleManagerChangeAlert(value, record)}
             style={{ width: 150 }}
             allowClear
           >
@@ -491,12 +491,12 @@ export default function Records() {
       dataIndex: "DEUDA_TOTAL_ASIGNADA",
       width: 180,
       ...getColumnSearchProps("DEUDA_TOTAL_ASIGNADA"),
-
     },
     {
-      title: "Observación",
-      dataIndex: "OBSERVACION",
+      title: "Comentario",
+      dataIndex: "COMENTARIO",
       width: 180,
+      ...getColumnSearchProps("COMENTARIO"),
     },
   ];
 
@@ -570,6 +570,25 @@ export default function Records() {
         }
         className="ant-table"
       />
+      <Modal
+        open={managerAlert.open}
+        onCancel={() => setManagerAlert((prev) => ({ ...prev, open: false }))}
+        onClose={() => setManagerAlert((prev) => ({ ...prev, open: false }))}
+        onOk={() => {
+          handleManagerChange(managerAlert.recordId, managerAlert.managerId);
+          setManagerAlert((prev) => ({ ...prev, open: false }));
+        }}
+        closable={false}
+      >
+        <Alert
+          message="Advertencia"
+          description={
+            "Esta accion cambiará el gestor asignado. ¿Estas seguro de continuar? "
+          }
+          type="warning"
+          showIcon
+        />
+      </Modal>
     </div>
   );
 }

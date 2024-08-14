@@ -13,7 +13,6 @@ export default function MainTable({
   handleTableChange,
   managers,
 }) {
-  console.log("🚀 ~ dataSource:", dataSource);
 
   const mainSource = getSubSource(
     [

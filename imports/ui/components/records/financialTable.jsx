@@ -29,7 +29,6 @@ export default function FinancialTable({ dataSource, getColumns, data }) {
     )
   );
 
-  console.log("🚀 ~ FinancialTable ~ financialSource:", financialSource);
   return (
     <Table
       bordered

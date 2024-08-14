@@ -4,7 +4,6 @@ import moment from "moment";
 import { Meteor } from "meteor/meteor";
 import XLSX from "xlsx";
 import convertDate from "../../utils/convertDate";
-import formatNumber from "../../utils/formatNumbers";
 import "./records.css";
 import MainTable from "./mainTable";
 import ReportTable from "./reportTable";
