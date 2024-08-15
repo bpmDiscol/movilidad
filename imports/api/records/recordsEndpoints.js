@@ -5,7 +5,7 @@ import { photosCollection } from "../photos/photosCollection";
 import multer from "multer";
 import jwt from "jsonwebtoken";
 
-import { Random } from 'meteor/random'
+import { Random } from "meteor/random";
 
 import { recordsCollection } from "./recordsCollection";
 import moment from "moment";
@@ -237,13 +237,20 @@ postRoutes.route("/management", function (params, req, res) {
 
     // Añade los datos a la colección records
 
-    // const formattedFechaGestion = moment(fecha_gestion).startOf("day").toDate();
+    const formattedFechaGestion = moment(fecha_gestion, [
+      "DD/MM/YYYY",
+      "YYYY/MM/DD",
+      "D/M/YYYY",
+      moment.ISO_8601,
+    ])
+      .startOf("day")
+      .toDate();
 
     recordsCollection.update(
       { NUMERO_DE_LA_ORDEN },
       {
         $set: {
-          fecha_gestion,
+          fecha_gestion: formattedFechaGestion,
           numero_producto,
           tipo_producto,
           resultado_de_gestion,
