@@ -237,13 +237,13 @@ postRoutes.route("/management", function (params, req, res) {
 
     // Añade los datos a la colección records
 
-    const formattedFechaGestion = moment(fecha_gestion).startOf("day").toDate();
+    // const formattedFechaGestion = moment(fecha_gestion).startOf("day").toDate();
 
     recordsCollection.update(
       { NUMERO_DE_LA_ORDEN },
       {
         $set: {
-          fecha_gestion: formattedFechaGestion,
+          fecha_gestion,
           numero_producto,
           tipo_producto,
           resultado_de_gestion,
