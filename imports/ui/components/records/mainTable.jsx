@@ -80,7 +80,7 @@ export default function MainTable({
             return (
               <Text key={key + idx} code>
                 <Badge status={text ? "success" : "processing"} />{" "}
-                {text ? moment(text).format("DD/MM/YYYY") : "no gestionado"}
+                {text ? moment(text).add(1, "days").format("DD/MM/YYYY") : "no gestionado"}
               </Text>
             );
 

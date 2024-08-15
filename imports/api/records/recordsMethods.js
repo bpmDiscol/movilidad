@@ -82,7 +82,7 @@ Meteor.methods({
   async updateRecordManager(recordId, managerId) {
     return await recordsCollection.updateAsync(
       { NUMERO_DE_LA_ORDEN: recordId },
-      { $set: { GESTOR: managerId, status: "pending", updatedAt:"" } },
+      { $set: { GESTOR: managerId, status: "pending", updatedAt:"", fecha_gestion:"" } },
       { upsert: true }
     );
   },
