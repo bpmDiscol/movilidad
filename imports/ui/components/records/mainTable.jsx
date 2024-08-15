@@ -43,7 +43,6 @@ export default function MainTable({
     ],
     dataSource
   );
-  
 
   const getColumns = (source) => {
     if (dataSource.length === 0) return [];
@@ -77,14 +76,14 @@ export default function MainTable({
                 {text}
               </Text>
             );
-          if (key === "FECHA_DE_GESTION" || key === "ULTIMA_ACTUALIZACION" )
+          if (key === "FECHA_DE_GESTION" || key === "ULTIMA_ACTUALIZACION")
             return (
               <Text key={key + idx} code>
                 <Badge status={text ? "success" : "processing"} />{" "}
                 {text ? moment(text).format("DD/MM/YYYY") : "no gestionado"}
               </Text>
             );
-            
+
           if (key === "FOTOS")
             return (
               <Flex vertical>
@@ -95,7 +94,14 @@ export default function MainTable({
                 ))}
               </Flex>
             );
-
+          if (
+            key === "NUMERO_DE_LA_ORDEN" ||
+            key === "PRODUCTO" ||
+            key === "CONTRATO" ||
+            key === "CLIENTE"
+          )
+            return text;
+            
           return <Text key={key + idx}>{formatIfNumber(text)}</Text>;
         },
       }));

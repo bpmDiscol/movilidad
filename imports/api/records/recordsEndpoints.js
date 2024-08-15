@@ -259,7 +259,7 @@ postRoutes.route("/management", function (params, req, res) {
           observacion,
           ubicacion,
           status,
-          updatedAt: new Date(),
+          updatedAt: moment(Date.now()).startOf("day").toDate(),
         },
       },
       { upsert: true }
