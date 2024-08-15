@@ -114,12 +114,12 @@ export default function GetReport() {
         pageSize: 99999999,
         managerId: selectedManager,
         period: period ? moment(period).toISOString() : null,
-        date: date ? moment(date, "DD/MM/YYYY").format("YYYY-MM-DD") : null,
+        date: date ? moment(date, "DD/MM/YYYY").format("DD/MM/YYYY")  : null,
         startDate: startDate
-          ? moment(startDate, "DD/MM/YYYY").format("YYYY-MM-DD")
+          ? moment(startDate, "DD/MM/YYYY").format("DD/MM/YYYY")
           : null,
         endDate: endDate
-          ? moment(endDate, "DD/MM/YYYY").format("YYYY-MM-DD")
+          ? moment(endDate, "DD/MM/YYYY").format("DD/MM/YYYY")
           : null,
       },
       (error, result) => {
