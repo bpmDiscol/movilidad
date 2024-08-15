@@ -13,13 +13,13 @@ export default function MainTable({
   handleTableChange,
   managers,
 }) {
-
   const mainSource = getSubSource(
     [
       "GESTOR",
       "PERIODO",
       "NUMERO_DE_LA_ORDEN",
       "FECHA_DE_GESTION",
+      "ULTIMA_ACTUALIZACION",
       "INDICADOR",
       "DESCRIPCION_TIPO_PRODUCTO",
       "ESTADO_DE_PRODUCTO",
@@ -43,6 +43,7 @@ export default function MainTable({
     ],
     dataSource
   );
+  
 
   const getColumns = (source) => {
     if (dataSource.length === 0) return [];
@@ -51,7 +52,11 @@ export default function MainTable({
     return Object.keys(source[0])
       .filter((key) => key != "_id")
       .map((key, idx) => ({
-        title: <Text strong style={{fontSize:'11px'}}>{key.toUpperCase().replace(/_/g, " ").replace(/_{2,}/g, " ")}</Text> ,
+        title: (
+          <Text strong style={{ fontSize: "11px" }}>
+            {key.toUpperCase().replace(/_/g, " ").replace(/_{2,}/g, " ")}
+          </Text>
+        ),
         dataIndex: key,
         key: key + idx,
         width: 170,
@@ -72,13 +77,14 @@ export default function MainTable({
                 {text}
               </Text>
             );
-          if (key === "FECHA_DE_GESTION")
+          if (key === "FECHA_DE_GESTION" || key === "ULTIMA_ACTUALIZACION" )
             return (
               <Text key={key + idx} code>
                 <Badge status={text ? "success" : "processing"} />{" "}
                 {text ? moment(text).format("DD/MM/YYYY") : "no gestionado"}
               </Text>
             );
+            
           if (key === "FOTOS")
             return (
               <Flex vertical>
@@ -103,7 +109,11 @@ export default function MainTable({
         dataSource={mainSource}
         expandable={{
           expandedRowRender: (data) => (
-            <FinancialTable dataSource={dataSource} getColumns={getColumns} data={data} />
+            <FinancialTable
+              dataSource={dataSource}
+              getColumns={getColumns}
+              data={data}
+            />
           ),
         }}
         rowKey={(record) => record.NUMERO_DE_LA_ORDEN}

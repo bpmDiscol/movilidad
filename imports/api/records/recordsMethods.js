@@ -112,7 +112,7 @@ Meteor.methods({
       // Normaliza la fecha proporcionada a un objeto Date
       const normalizedDate = moment(date, "DD/MM/YYYY").startOf("day").toDate();
 
-      query["fecha_gestion"] = normalizedDate;
+      query["updatedAt"] = normalizedDate;
     }
 
     if (startDate && endDate) {
@@ -124,7 +124,7 @@ Meteor.methods({
         .endOf("day")
         .toDate();
 
-      query["fecha_gestion"] = {
+      query["updatedAt"] = {
         $gte: normalizedStartDate,
         $lte: normalizedEndDate,
       };

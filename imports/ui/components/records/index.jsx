@@ -165,12 +165,16 @@ export default function Records() {
   };
 
   function handleManagerChangeAlert(value, record) {
+    if (!record.GESTOR)
+      return handleManagerChange(record.NUMERO_DE_LA_ORDEN, value);
     setManagerAlert({
       open: true,
       recordId: record.NUMERO_DE_LA_ORDEN,
       managerId: value,
     });
   }
+
+  const excludedFields = ["NUMERO_DE_LA_ORDEN", "CONTRATO", "PRODUCTO"];
 
   const getColumnSearchProps = (dataIndex) => {
     return {
@@ -332,8 +336,12 @@ export default function Records() {
             }}
             searchWords={[searchText]}
             autoEscape
-            textToHighlight={formatIfNumber(text)}
+            textToHighlight={
+              excludedFields.includes(dataIndex) ? text : formatIfNumber(text)
+            }
           />
+        ) : excludedFields.includes(dataIndex) ? (
+          text
         ) : (
           formatIfNumber(text)
         ),

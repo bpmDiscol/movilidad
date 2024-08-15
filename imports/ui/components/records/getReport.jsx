@@ -79,7 +79,8 @@ export default function GetReport() {
               LATITUD: record.ubicacion?.latitud,
               LONGITUD: record.ubicacion?.longitud,
               FOTOS,
-              FECHA_DE_GESTION: record.updatedAt
+              FECHA_DE_GESTION: record.fecha_gestion,
+              ULTIMA_ACTUALIZACION: record.updatedAt,
             };
           });
 
@@ -146,7 +147,6 @@ export default function GetReport() {
     );
   };
 
-  
   return (
     <Flex vertical>
       <Affix offsetTop={120}>

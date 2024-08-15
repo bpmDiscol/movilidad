@@ -49,6 +49,7 @@ export default function AnalizeExcel() {
 
         const ws = wb.Sheets[wb.SheetNames[0]];
         const jsonSheet = XLSX.utils.sheet_to_json(ws);
+        console.log(jsonSheet[0])
 
         if (!checkKeys(jsonSheet[0]))
           return message.error("formato de archivo no valido");

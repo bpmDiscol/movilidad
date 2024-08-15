@@ -20,7 +20,7 @@ export default function ResponseTable({ dataSource, getColumns, data }) {
       "contacto",
       "telefono_sugerido",
       "observacion",
-      "FOTO",
+      "FOTOS",
       "LATITUD",
       "LONGITUD"
     ],
