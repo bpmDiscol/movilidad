@@ -55,6 +55,7 @@ export default function ExcelAssignButton({ managers, setReload }) {
           "updateRecordManager",
           idOrden.toString(),
           gestor[0].id,
+          Meteor.userId(),
           (err) => {
             if (err)
               message.error(

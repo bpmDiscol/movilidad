@@ -5,12 +5,13 @@ Meteor.methods({
   createDocument(data) {
     documentsCollection.insert({ ...data, createdAt: Date.now() });
   },
-  async getDocuments(page, pageSize) {
+  async getDocuments(page, pageSize, leaderId) {
     page = parseInt(page, 10) || 1;
     pageSize = parseInt(pageSize, 10) || 50;
     const documents = await documentsCollection
       .rawCollection()
       .aggregate([
+        { $match: { leaderId } },
         {
           $sort: { createdAt: -1 },
         },

@@ -11,7 +11,7 @@ export default function List() {
   });
 
   const fetchDocuments = (page, pageSize) => {
-    Meteor.call("getDocuments", page, pageSize, (err, resp) => {
+    Meteor.call("getDocuments", page, pageSize, Meteor.userId(), (err, resp) => {
       if (err) {
         console.error(err);
         return;
@@ -51,6 +51,10 @@ export default function List() {
       title: "Fecha de carga",
       dataIndex: "createdAt",
       render: (value) => moment(value).format("DD/MM/YYYY"),
+    },
+    {
+      title: "Registros",
+      dataIndex: "updates",
     },
   ];
 

@@ -49,7 +49,6 @@ export default function AnalizeExcel() {
 
         const ws = wb.Sheets[wb.SheetNames[0]];
         const jsonSheet = XLSX.utils.sheet_to_json(ws);
-        console.log(jsonSheet[0])
 
         if (!checkKeys(jsonSheet[0]))
           return message.error("formato de archivo no valido");
@@ -88,24 +87,32 @@ export default function AnalizeExcel() {
             status: "pending",
           };
 
-          Meteor.call("createRecord", normalizedRecord, (err, result) => {
-            if (!err && result.success) {
-              if (result.wasInserted) {
-                successfulUpdates++;
-              }
+          Meteor.call(
+            "createRecord",
+            normalizedRecord,
+            Meteor.userId(),
+            (err, result) => {
               setProgressLevel((prev) => ({
                 total: jsonSheet.length,
                 current: prev.current + 1,
               }));
-              // setProgressStatus("active");
-              setProgressStatus("success");
-            } else {
-              setProgressStatus("exception");
+              if (!err && result.success) {
+                if (result.wasInserted) {
+                  successfulUpdates++;
+                }
+
+                // setProgressStatus("active");
+                setProgressStatus("success");
+              } else {
+                message.warning(
+                  "No fue posible cargar Orden No:" + record.NUMERO_DE_LA_ORDEN
+                );
+                setProgressStatus("exception");
+              }
+              setTotalUpdates(successfulUpdates);
             }
-            setTotalUpdates(successfulUpdates);
-          });
+          );
         });
-        console.log(successfulUpdates);
       };
     });
   }
@@ -172,9 +179,15 @@ export default function AnalizeExcel() {
       ...extra,
       period: JSON.stringify(period).replace(/["']/g, ""),
     };
-    await Meteor.callAsync("createDocument", { ...extrafields, updates }).catch(
-      () => message.error("Error al cargar registro")
-    );
+    await Meteor.callAsync("createDocument", {
+      ...extrafields,
+      updates,
+      leaderId: Meteor.userId(),
+    }).catch((error) => {
+      if (error.error === "document-exists") {
+        message.warning(error.reason);
+      }
+    });
   }
 
   return (

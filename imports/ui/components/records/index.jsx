@@ -48,18 +48,25 @@ export default function Records() {
 
   const voidSorter = { sortField: null, sortOrder: 1 };
   const fetchRecords = (page, pageSize, search, sort = voidSorter) => {
-    Meteor.call("getRecords", page, pageSize, search, sort, (err, resp) => {
-      if (err) {
-        console.error(err);
-        return;
+    Meteor.call(
+      "getRecords",
+      page,
+      pageSize,
+      { ...search, leaderId: Meteor.userId() },
+      sort,
+      (err, resp) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        setDataSource(resp.data);
+        setPagination((prev) => ({
+          ...prev,
+          current: page,
+          total: resp.total,
+        }));
       }
-      setDataSource(resp.data);
-      setPagination((prev) => ({
-        ...prev,
-        current: page,
-        total: resp.total,
-      }));
-    });
+    );
   };
 
   const handleSearch = (
@@ -142,6 +149,7 @@ export default function Records() {
             "updateRecordManager",
             recordId,
             selectedManager,
+            Meteor.userId(),
             (error) => {
               if (error) {
                 reject(error);

@@ -54,6 +54,7 @@ export default function GetReport() {
           ? moment(endDate, "DD/MM/YYYY").format("DD/MM/YYYY")
           : null,
         managersIds: managers,
+        leaderId: Meteor.userId(),
       },
       async (error, result) => {
         if (error) {
@@ -113,8 +114,9 @@ export default function GetReport() {
         page: 1,
         pageSize: 99999999,
         managerId: selectedManager,
+        leaderId: Meteor.userId(),
         period: period ? moment(period).toISOString() : null,
-        date: date ? moment(date, "DD/MM/YYYY").format("DD/MM/YYYY")  : null,
+        date: date ? moment(date, "DD/MM/YYYY").format("DD/MM/YYYY") : null,
         startDate: startDate
           ? moment(startDate, "DD/MM/YYYY").format("DD/MM/YYYY")
           : null,
