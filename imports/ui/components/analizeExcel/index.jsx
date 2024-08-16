@@ -96,12 +96,8 @@ export default function AnalizeExcel() {
                 total: jsonSheet.length,
                 current: prev.current + 1,
               }));
-              if (!err && result.success) {
-                if (result.wasInserted) {
-                  successfulUpdates++;
-                }
-
-                // setProgressStatus("active");
+              if (!err) {
+                successfulUpdates++;
                 setProgressStatus("success");
               } else {
                 message.warning(
@@ -137,6 +133,7 @@ export default function AnalizeExcel() {
       return false;
     },
   };
+
   useEffect(() => {
     if (progressLevel && progressLevel.total && progressLevel.current) {
       const targetProgress =
@@ -160,12 +157,8 @@ export default function AnalizeExcel() {
       }
 
       if ((progressLevel.current / progressLevel.total) * 100 == 100) {
-        if (totalUpdates == 0)
-          message.warning("No hay elementos que actualizar");
-        if (totalUpdates > 0) {
-          setReloading(true);
-          Meteor.setTimeout(update, 1000);
-        }
+        setReloading(true);
+        Meteor.setTimeout(update, 1000);
       }
 
       return () => clearInterval(interval);

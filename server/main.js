@@ -16,13 +16,5 @@ Meteor.startup(async () => {
       profile: { role: "admin" },
     });
   }
-  recordsCollection
-    .rawCollection()
-    .createIndex({ NUMERO_DE_LA_ORDEN: 1 }, { unique: true })
-    .then(() => {
-      console.log("Index created successfully");
-    })
-    .catch((error) => {
-      console.error("Error creating index:", error);
-    });
+   
 });
