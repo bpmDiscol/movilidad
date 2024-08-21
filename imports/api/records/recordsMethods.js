@@ -1,4 +1,5 @@
 import { Meteor } from "meteor/meteor";
+import { Random } from "meteor/random";
 import { recordsCollection } from "./recordsCollection";
 import moment from "moment";
 
@@ -16,13 +17,12 @@ function formatDate(date) {
 
 Meteor.methods({
   async createRecord(record, leaderId) {
-    return await recordsCollection
-      .rawCollection()
-      .replaceOne(
-        { NUMERO_DE_LA_ORDEN: record.NUMERO_DE_LA_ORDEN },
-        { ...record, leaderId },
-        { upsert: true }
-      );
+    const _id = Random.id(10);
+    recordsCollection.remove({
+      NUMERO_DE_LA_ORDEN: record.NUMERO_DE_LA_ORDEN,
+    });
+
+    return recordsCollection.insert({ ...record, leaderId, _id });
   },
   async getRecords(page, pageSize, filters = {}, sort) {
     page = parseInt(page, 10) || 1;
@@ -92,10 +92,11 @@ Meteor.methods({
     endDate,
     sortField,
     sortOrder = 1,
-    managerIds,
     leaderId,
   }) {
-    let query = { leaderId: leaderId };
+    let query = {};
+
+    if (leaderId) query.leaderId = leaderId;
 
     if (managerId) {
       query["GESTOR"] = managerId;
@@ -272,10 +273,6 @@ Meteor.methods({
           ])
           .toArray()
       : {};
-
-    if (managerIds && managerIds.length) {
-      query["GESTOR"] = { $in: managerIds };
-    }
 
     const report = pages[0].totalCount
       ? await recordsCollection
