@@ -109,7 +109,6 @@ Meteor.methods({
     if (date) {
       // Normaliza la fecha proporcionada a un objeto Date
       const normalizedDate = moment(date, "DD/MM/YYYY")
-        .subtract(1, "days")
         .startOf("day")
         .toDate();
 
@@ -119,11 +118,9 @@ Meteor.methods({
     if (startDate && endDate) {
       // Normaliza las fechas proporcionadas a objetos Date
       const normalizedStartDate = moment(startDate, "DD/MM/YYYY")
-        .subtract(1, "days")
         .startOf("day")
         .toDate();
       const normalizedEndDate = moment(endDate, "DD/MM/YYYY")
-        .subtract(1, "days")
         .endOf("day")
         .toDate();
 
