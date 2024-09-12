@@ -108,9 +108,7 @@ Meteor.methods({
 
     if (date) {
       // Normaliza la fecha proporcionada a un objeto Date
-      const normalizedDate = moment(date, "DD/MM/YYYY")
-        .startOf("day")
-        .toDate();
+      const normalizedDate = moment(date, "DD/MM/YYYY").startOf("day").toDate();
 
       query["updatedAt"] = normalizedDate;
     }
@@ -134,20 +132,66 @@ Meteor.methods({
       .rawCollection()
       .aggregate([
         {
-          $match: query,
+          $match: query, // Filtrar los documentos según el criterio de búsqueda
         },
         {
-          $sort: { [sortField]: sortOrder },
+          $sort: { [sortField]: sortOrder }, // Ordenar los documentos según el campo y orden
         },
         {
           $facet: {
-            metadata: [{ $count: "totalCount" }],
-            data: [{ $skip: (page - 1) * pageSize }, { $limit: pageSize }],
+            metadata: [{ $count: "totalCount" }], // Contar el número total de documentos
+            data: [
+              { $skip: (page - 1) * pageSize }, // Saltar registros para paginación
+              { $limit: pageSize }, // Limitar la cantidad de registros por página
+              {
+                $project: {
+                  PRODUCTO: 1,
+                  CONTRATO: 1,
+                  CLIENTE: 1,
+                  DESCRIPCION_TIPO_PRODUCTO: 1,
+                  DESCRIPCION_LOCALIDAD: 1,
+                  DESCRIPCION_BARRIO: 1,
+                  DESCRIPCION_CICLO: 1,
+                  TIPO_CLIENTE: 1,
+                  IDENTIFICACION: 1,
+                  NOMBRE_CLIENTE: 1,
+                  DIRECCION_PREDIO: 1,
+                  GESTOR: 1,
+                  fecha_gestion: 1,
+                  updatedAt: 1,
+                  causal_de_no_pago: 1,
+                  contacto: 1,
+                  resultado_de_gestion: 1,
+                  telefono_sugerido: 1,
+                  tipo_de_vivienda: 1,
+                  ubicacion: 1,
+                  fotos: 1,
+                  PERIODO: 1,
+                  LATITUD: 1,
+                  LONGITUD: 1,
+                  ELEMENTO_MEDICION: 1,
+                  EMAIL: 1,
+                  estado_servicio: 1,
+                  lectura: 1,
+                  COMENTARIO: 1,
+                  causal_de_pago: 1,
+                  recibo: 1,
+                  valor_recibo: 1,
+                  IDENTIFICACION_CODEUDOR: 1,
+                  NOMBRE_CODEUDOR: 1,
+                  TELEFONO_MOVIL_CODEUDOR: 1,
+                  TELEFONO_FIJO_CODEUDOR: 1,
+                  PAGOS_PERIODOS_ASIGNADO: 1,
+                  PROYECTO: 1,
+                  status: 1
+                },
+              },
+            ],
           },
         },
         {
           $project: {
-            data: 1,
+            data: 1, // Mantener solo los datos y el conteo total en la salida
             totalCount: { $arrayElemAt: ["$metadata.totalCount", 0] },
           },
         },
@@ -199,7 +243,9 @@ Meteor.methods({
                           $arrayElemAt: ["$metadata.indicadorCounts", 0],
                         },
                         as: "ind",
-                        cond: { $in: ["$$ind", ["NORMALIZACION", "NORMALIZACIÓN"]] },
+                        cond: {
+                          $in: ["$$ind", ["NORMALIZACION", "NORMALIZACIÓN"]],
+                        },
                       },
                     },
                   },
@@ -210,7 +256,7 @@ Meteor.methods({
                           $arrayElemAt: ["$metadata.indicadorCounts", 0],
                         },
                         as: "ind",
-                        cond: { $in: ["$$ind", ["CONTENCION", "CONTENCIÓN"]]},
+                        cond: { $in: ["$$ind", ["CONTENCION", "CONTENCIÓN"]] },
                       },
                     },
                   },

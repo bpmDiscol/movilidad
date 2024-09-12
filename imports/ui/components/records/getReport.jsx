@@ -285,10 +285,10 @@ export default function GetReport({ admin = false }) {
           dataSource={dataSource}
           handleTableChange={handleTableChange}
           pagination={pagination}
-          managers={managers}
+          managers={allManagers}
         />
         {managers && report && (
-          <ReportTable report={report} managers={managers} />
+          <ReportTable report={report} managers={allManagers} />
         )}
       </Flex>
     </Flex>

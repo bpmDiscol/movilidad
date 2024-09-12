@@ -45,6 +45,7 @@ export default function mapOutput(output) {
     "TELEFONO_FIJO_CODEUDOR",
     "PAGOS_PERIODOS_ASIGNADO",
     "PROYECTO",
+    "status",
   ];
   const formattedHeaders = columns.map(formatColumnTitle);
 
