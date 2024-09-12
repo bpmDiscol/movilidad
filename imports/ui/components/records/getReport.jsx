@@ -275,7 +275,7 @@ export default function GetReport({ admin = false }) {
           danger={downloadReport.loading}
         >
           {downloadReport.loading
-            ? (downloadReport.percent * 100).toFixed(0) + "% descargado"
+            ? (downloadReport.percent * 10000).toFixed(1) + "% descargado"
             : "Exportar a Excel"}
         </Button>
       </Flex>
