@@ -12,10 +12,9 @@ import ReportTable from "../records/reportTable";
 import MainTable from "../records/mainTable";
 import Totals from "../records/totals";
 import convertDate from "../../utils/convertDate";
-import mapOutput from "../records/mapOutput";
 const { Title } = Typography;
 
-export default function ReportView({ admin = false }) {
+export default function AdminView() {
   const [leaders, setLeaders] = useState([]);
   const [selectedLeader, setSelectedLeader] = useState();
   const [dataSource, setDataSource] = useState([]);
@@ -40,27 +39,15 @@ export default function ReportView({ admin = false }) {
   });
 
   useEffect(() => {
-    if (admin) {
-      fetchReport(1, pagination.pageSize);
-      Meteor.call("getLeaders", Meteor.userId(), (err, resp) => {
-        if (err) message.error(err.reason);
-        setLeaders(resp);
-      });
-      Meteor.call("getAllManagers", Meteor.userId(), (err, resp) => {
-        if (err) message.error(err.reason);
-        setAllManagers(resp);
-      });
-    }
-    if (!admin) {
-      fetchReport(pagination.current, pagination.pageSize);
-      Meteor.call("getManagers", Meteor.userId(), (error, result) => {
-        if (error) {
-          console.error("Error fetching managers:", error);
-        } else {
-          setManagers(result);
-        }
-      });
-    }
+    fetchReport(1, pagination.pageSize);
+    Meteor.call("getLeaders", Meteor.userId(), (err, resp) => {
+      if (err) message.error(err.reason);
+      setLeaders(resp);
+    });
+    Meteor.call("getAllManagers", Meteor.userId(), (err, resp) => {
+      if (err) message.error(err.reason);
+      setAllManagers(resp);
+    });
   }, []);
 
   function fetchReport(page, pageSize) {
@@ -121,7 +108,7 @@ export default function ReportView({ admin = false }) {
       }
     );
   }
-
+  
   async function handleExport() {
     const pageSize = 1;
     let page = 1;
@@ -200,20 +187,18 @@ export default function ReportView({ admin = false }) {
           gap={10}
           style={{ backgroundColor: "#8178ba", padding: "10px" }}
         >
-          {admin && (
-            <Select
-              placeholder="Lider"
-              style={{ width: 200 }}
-              onChange={manageLeaderChange}
-              allowClear
-            >
-              {leaders.map((leader) => (
-                <Select.Option key={leader.id} value={leader.id}>
-                  {leader.username}
-                </Select.Option>
-              ))}
-            </Select>
-          )}
+          <Select
+            placeholder="Lider"
+            style={{ width: 200 }}
+            onChange={manageLeaderChange}
+            allowClear
+          >
+            {leaders.map((leader) => (
+              <Select.Option key={leader.id} value={leader.id}>
+                {leader.username}
+              </Select.Option>
+            ))}
+          </Select>
           <Select
             placeholder="Gestor"
             style={{ width: 200 }}
