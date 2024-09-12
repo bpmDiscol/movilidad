@@ -33,7 +33,7 @@ Meteor.methods({
     const leader = Meteor.users.findOne(leaderId);
 
     if (!leader) {
-      throw new Meteor.Error("Leader not found");
+      throw new Meteor.Error("Lider no encontrado");
     }
 
     return leader.profile.managers || [];
@@ -41,7 +41,7 @@ Meteor.methods({
   getLoggedInLeaderManagers(userId) {
     const user = Meteor.users.findOne(userId);
     if (!user || user.profile.role !== "leader") {
-      throw new Meteor.Error("not-authorized");
+      throw new Meteor.Error("Sin autorización");
     }
 
     return user.profile.managers || [];
@@ -53,5 +53,29 @@ Meteor.methods({
       const manager = Meteor.users.findOne(managerId);
       return { username: manager.username, id: manager._id };
     });
+  },
+  getLeaders(userId) {
+    const user = Meteor.users.findOne(userId);
+    if (!user || user.profile.role !== "admin") {
+      throw new Meteor.Error(
+        "Sin autorización",
+        "Usuario sin autorización suficiente"
+      );
+    }
+
+    const leaders = Meteor.users.find({ "profile.role": "leader" }).fetch();
+    return leaders.map((user) => ({ id: user._id, username: user.username }));
+  },
+  getAllManagers(userId) {
+    const user = Meteor.users.findOne(userId);
+    if (!user || user.profile.role !== "admin") {
+      throw new Meteor.Error(
+        "Sin autorización",
+        "Usuario sin autorización suficiente"
+      );
+    }
+
+    const managers = Meteor.users.find({ "profile.role": "management" }).fetch();
+    return managers.map((user) => ({ id: user._id, username: user.username }));
   },
 });

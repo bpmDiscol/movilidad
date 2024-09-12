@@ -28,7 +28,7 @@ export default function ResponseTable({ dataSource, getColumns, data }) {
       (source) => source.NUMERO_DE_LA_ORDEN == data.NUMERO_DE_LA_ORDEN
     )
   );
-  console.log(response)
+
   return (
     <Table
       bordered

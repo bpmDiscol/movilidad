@@ -28,8 +28,10 @@ export default function AnalizeExcel() {
   const [displayedProgress, setDisplayedProgress] = useState(0);
   const [reloading, setReloading] = useState(false);
   const [reloadList, setReloadList] = useState(0);
+  const [reading, setReading] = useState(false);
 
   function uploadRecords(file) {
+    setReading(true);
     setProgressLevel({ total: 0, current: 0 });
     setTotalUpdates(0);
     setDisplayedProgress(0);
@@ -42,6 +44,7 @@ export default function AnalizeExcel() {
 
     new Promise(() => {
       const reader = new FileReader();
+      
       reader.readAsArrayBuffer(file);
       reader.onload = () => {
         const data = reader.result;
@@ -50,8 +53,10 @@ export default function AnalizeExcel() {
         const ws = wb.Sheets[wb.SheetNames[0]];
         const jsonSheet = XLSX.utils.sheet_to_json(ws);
 
-        if (!checkKeys(jsonSheet[0]))
+        if (!checkKeys(jsonSheet[0])) {
+          setReading(false);
           return message.error("formato de archivo no valido");
+        }
 
         let successfulUpdates = 0;
         jsonSheet.forEach((record_) => {
@@ -86,6 +91,7 @@ export default function AnalizeExcel() {
               : "",
             status: "pending",
           };
+          setReading(false);
 
           Meteor.call(
             "createRecord",
@@ -295,6 +301,7 @@ export default function AnalizeExcel() {
         </Flex>
       </Flex>
       <List key={reloadList} />
+      <Spin fullscreen tip="Analizando archivo" spinning={reading} />
     </Form>
   );
 }

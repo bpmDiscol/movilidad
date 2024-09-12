@@ -5,7 +5,6 @@ import { Meteor } from "meteor/meteor";
 const { Option } = Select;
 const { Title } = Typography;
 
-
 const AssignManagers = () => {
   const [form] = Form.useForm();
   const [leaders, setLeaders] = useState([]);
@@ -29,6 +28,7 @@ const AssignManagers = () => {
   const handleLeaderChange = (leaderId) => {
     if (leaderId) {
       Meteor.call("getManagersForLeader", leaderId, (error, result) => {
+        if (error) message.error(error.reason);
         if (!error) {
           setAssignedManagers(result);
           form.setFieldsValue({ selectedManagers: result });
@@ -58,7 +58,7 @@ const AssignManagers = () => {
 
   return (
     <>
-     <Flex vertical align="center" style={{ width: "100%" }}>
+      <Flex vertical align="center" style={{ width: "100%" }}>
         <Title level={2}>Asignación de gestores</Title>
       </Flex>
       <Form

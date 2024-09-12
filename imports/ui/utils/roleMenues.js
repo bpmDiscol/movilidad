@@ -14,6 +14,7 @@ import AssignManagers from "../components/assignManagers";
 import Records from "../components/records";
 import AnalizeExcel from "../components/analizeExcel";
 import GetReport from "../components/records/getReport";
+
 export default function getMenu(role, setView) {
   const roles = {
     admin: [
@@ -33,7 +34,7 @@ export default function getMenu(role, setView) {
         key: "12",
         icon: <SnippetsOutlined />,
         label: "Asignaciones",
-        onClick: () => setView(<Records />),
+        onClick: () => setView(<GetReport admin />),
       },
     ],
     management: [],

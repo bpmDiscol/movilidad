@@ -8,19 +8,14 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import moment from "moment";
-import { Meteor } from "meteor/meteor";
-import XLSX from "xlsx";
+import ReportTable from "../records/reportTable";
+import MainTable from "../records/mainTable";
+import Totals from "../records/totals";
 import convertDate from "../../utils/convertDate";
-import "./records.css";
-import MainTable from "./mainTable";
-import ReportTable from "./reportTable";
-import Totals from "./totals";
-import mapOutput from "./mapOutput";
+import mapOutput from "../records/mapOutput";
+const { Title } = Typography;
 
-const { Text, Title, Link } = Typography;
-
-export default function GetReport({ admin = false }) {
+export default function ReportView({ admin = false }) {
   const [leaders, setLeaders] = useState([]);
   const [selectedLeader, setSelectedLeader] = useState();
   const [dataSource, setDataSource] = useState([]);
@@ -68,7 +63,7 @@ export default function GetReport({ admin = false }) {
     }
   }, []);
 
-  const fetchReport = (page, pageSize) => {
+  function fetchReport(page, pageSize) {
     Meteor.call(
       "reportManagement",
       {
@@ -79,8 +74,8 @@ export default function GetReport({ admin = false }) {
         date,
         startDate,
         endDate,
-        managerIds: managers,
-        leaderId: admin ? selectedLeader : Meteor.userId(),
+        managersIds: managers,
+        leaderId: selectedLeader,
       },
       async (error, result) => {
         if (error) {
@@ -113,8 +108,7 @@ export default function GetReport({ admin = false }) {
 
           const resolved = await Promise.all(updatedResult)
             .then((photos) => photos)
-            .catch(() => "error");
-
+            .catch((e) => e);
           setDataSource(resolved);
           setReport(result.report[0]);
           setTotales(result.totales[0]);
@@ -126,33 +120,20 @@ export default function GetReport({ admin = false }) {
         }
       }
     );
-  };
-  function manageLeaderChange(leaderId) {
-    setSelectedLeader(leaderId);
-    if (!leaderId) return setManagers([]);
-    Meteor.call("getManagers", leaderId, (error, result) => {
-      if (error) console.error("Error fetching managers:", error);
-      else setManagers(result);
-    });
   }
-
-  const handleTableChange = (pagination) => {
-    fetchReport(pagination.current, pagination.pageSize);
-    setPagination(pagination);
-  };
 
   async function handleExport() {
     const pageSize = 1;
     let page = 1;
     const allData = [];
-    let total = Infinity;
+    let total = 10000000;
     try {
       while (total / pageSize >= page) {
         const partData = await Meteor.callAsync("reportManagement", {
           page,
           pageSize,
           managerId: selectedManager,
-          leaderId: admin ? selectedLeader : Meteor.userId(),
+          leaderId: Meteor.userId(),
           period: period ? moment(period).toISOString() : null,
           date,
           startDate,
@@ -197,12 +178,26 @@ export default function GetReport({ admin = false }) {
     }
   }
 
+  function manageLeaderChange(leaderId) {
+    setSelectedLeader(leaderId);
+    if (!leaderId) return setManagers([]);
+    Meteor.call("getManagers", leaderId, (error, result) => {
+      if (error) console.error("Error fetching managers:", error);
+      else setManagers(result);
+    });
+  }
+  function handleTableChange(pagination) {
+    fetchReport(pagination.current, pagination.pageSize);
+    setPagination(pagination);
+  }
+
   return (
-    <Flex vertical>
+    <div>
       <Affix offsetTop={120}>
         <Flex
           align="center"
           justify="space-between"
+          gap={10}
           style={{ backgroundColor: "#8178ba", padding: "10px" }}
         >
           {admin && (
@@ -224,7 +219,6 @@ export default function GetReport({ admin = false }) {
             style={{ width: 200 }}
             onChange={(value) => setSelectedManager(value)}
             allowClear
-            // status="warning"
           >
             {managers.map((manager) => (
               <Select.Option key={manager.id} value={manager.id}>
@@ -236,11 +230,11 @@ export default function GetReport({ admin = false }) {
             onChange={(date) =>
               setPeriod(JSON.stringify(date).replace(/["']/g, ""))
             }
-            format="YYYY-MM-DD"
+            format="DD/MM/YYYY"
             placeholder="Periodo asignado"
           />
           <DatePicker
-            onChange={(date, dateString) => setDate(dateString)}
+            onChange={(_, dateString) => setDate(dateString)}
             format="DD/MM/YYYY"
             placeholder="Fecha de gestion"
           />
@@ -285,12 +279,12 @@ export default function GetReport({ admin = false }) {
           dataSource={dataSource}
           handleTableChange={handleTableChange}
           pagination={pagination}
-          managers={managers}
+          managers={allManagers}
         />
         {managers && report && (
-          <ReportTable report={report} managers={managers} />
+          <ReportTable report={report} managers={allManagers} />
         )}
       </Flex>
-    </Flex>
+    </div>
   );
 }

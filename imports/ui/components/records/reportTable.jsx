@@ -35,7 +35,6 @@ export default function ReportTable({ report, managers }) {
       "Total deuda asignada": report.totalDeudaCorrienteAsignada,
       "Total deuda gestionada": report.totalDeudaCorrienteGestionada,
     }));
-    console.log(updatedResult);
 
     const ws = XLSX.utils.json_to_sheet(updatedResult);
     const wb = XLSX.utils.book_new();
@@ -47,7 +46,11 @@ export default function ReportTable({ report, managers }) {
     <>
       <Flex align="center" justify="space-between">
         <Title>Reporte por gestor</Title>
-        <Button type="primary" onClick={() => handleExport()}>
+        <Button
+          style={{ width: "10rem" }}
+          type="primary"
+          onClick={() => handleExport()}
+        >
           Exportar a excel
         </Button>
       </Flex>
