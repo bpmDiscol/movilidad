@@ -142,7 +142,7 @@ export default function GetReport({ admin = false }) {
   };
 
   async function handleExport() {
-    const pageSize = 1;
+    const pageSize = 100;
     let page = 1;
     const allData = [];
     let total = Infinity;
