@@ -8,16 +8,16 @@ Meteor.methods({
 
     return Meteor.users.find({ "profile.role": role }).fetch();
   },
-  createUserWithRole(username, password, role, proyect) {
+  createUserWithRole(username, password, role, project) {
     check(username, String);
     check(password, String);
     check(role, String);
-    check(proyect, String);
+    check(project, String);
 
     Accounts.createUser({
       username,
       password,
-      profile: { role, proyect },
+      profile: { role, project },
     });
   },
   assignManagersToLeader(leaderId, managerIds) {

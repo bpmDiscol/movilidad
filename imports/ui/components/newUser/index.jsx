@@ -9,14 +9,14 @@ export default function NewUser() {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    const { username, password, role, proyect } = values;
+    const { username, password, role, project } = values;
 
     Meteor.call(
       "createUserWithRole",
       username,
       password,
       role,
-      proyect,
+      project,
       (error) => {
         if (error) {
           message.error("Error creando usuario: " + error.reason);
@@ -65,7 +65,7 @@ export default function NewUser() {
           </Select>
         </Form.Item>
         <Form.Item
-          name="proyect"
+          name="project"
           rules={[
             { required: true, message: "Por favor, selecciona un proyecto!" },
           ]}
