@@ -61,7 +61,7 @@ export default function AnalizeExcel() {
         //   return message.error("formato de archivo no valido");
         // }
 
-        const proyect = Meteor.user({ profile: 1 }).profile.proyect;
+        const project = Meteor.user({ profile: 1 }).profile.proyect;
         let successfulUpdates = 0;
         jsonSheet.forEach((record_) => {
           const normalized_record = normalizedRecords(record_);
@@ -95,7 +95,7 @@ export default function AnalizeExcel() {
               ? record["DESCRIPCION_TIPO_PRODUCTO"].toUpperCase()
               : "",
             status: "pending",
-            proyect,
+            project,
             NUMERO_DE_LA_ORDEN:
               record.NUMERO_DE_LA_ORDEN ||
               "S-" + Random.id(10) + "-" + moment().format("DD-MM-YYYY"),
