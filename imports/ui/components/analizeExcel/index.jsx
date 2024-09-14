@@ -49,13 +49,13 @@ export default function AnalizeExcel() {
       const reader = new FileReader();
 
       reader.readAsArrayBuffer(file);
+      
       reader.onload = () => {
         const data = reader.result;
         const wb = XLSX.read(data);
 
         const ws = wb.Sheets[wb.SheetNames[0]];
         const jsonSheet = XLSX.utils.sheet_to_json(ws);
-
         // if (!checkKeys(jsonSheet[0])) {
         //   setReading(false);
         //   return message.error("formato de archivo no valido");
@@ -98,7 +98,7 @@ export default function AnalizeExcel() {
             proyect,
             NUMERO_DE_LA_ORDEN:
               record.NUMERO_DE_LA_ORDEN ||
-              "S-" + Random.id(8) + "-" + moment().format("DD-MM-YYYY"),
+              "S-" + Random.id(10) + "-" + moment().format("DD-MM-YYYY"),
           };
           setReading(false);
           Meteor.call(
@@ -134,7 +134,8 @@ export default function AnalizeExcel() {
     async beforeUpload(file) {
       const isExcel =
         file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+        file.type === "application/vnd.ms-excel";
 
       if (!isExcel) {
         message.error(`${file.name} No es un archivo de Excel`);
