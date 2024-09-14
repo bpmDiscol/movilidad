@@ -8,15 +8,16 @@ Meteor.methods({
 
     return Meteor.users.find({ "profile.role": role }).fetch();
   },
-  createUserWithRole(username, password, role) {
+  createUserWithRole(username, password, role, proyect) {
     check(username, String);
     check(password, String);
     check(role, String);
+    check(proyect, String);
 
     Accounts.createUser({
       username,
       password,
-      profile: { role },
+      profile: { role, proyect },
     });
   },
   assignManagersToLeader(leaderId, managerIds) {
@@ -75,7 +76,9 @@ Meteor.methods({
       );
     }
 
-    const managers = Meteor.users.find({ "profile.role": "management" }).fetch();
+    const managers = Meteor.users
+      .find({ "profile.role": "management" })
+      .fetch();
     return managers.map((user) => ({ id: user._id, username: user.username }));
   },
 });

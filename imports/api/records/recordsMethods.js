@@ -3,18 +3,6 @@ import { Random } from "meteor/random";
 import { recordsCollection } from "./recordsCollection";
 import moment from "moment";
 
-function formatDate(date) {
-  if (!date) return null;
-
-  const [day, month, year] = date.split("/");
-
-  // Ensure day and month are two digits
-  const formattedDay = day.length === 1 ? `0${day}` : day;
-  const formattedMonth = month.length === 1 ? `0${month}` : month;
-
-  return `${formattedDay}/${formattedMonth}/${year}`;
-}
-
 Meteor.methods({
   async createRecord(record, leaderId) {
     const _id = Random.id(10);
@@ -27,8 +15,9 @@ Meteor.methods({
   async getRecords(page, pageSize, filters = {}, sort) {
     page = parseInt(page, 10) || 1;
     pageSize = parseInt(pageSize, 10) || 50;
+    const proyect = Meteor.users.findOne(this.userId).profile.proyect;
 
-    let filter = {};
+    let filter = { proyect };
     if (filters)
       for (const [key, value] of Object.entries(filters)) {
         key === "GESTOR"
@@ -183,7 +172,7 @@ Meteor.methods({
                   TELEFONO_FIJO_CODEUDOR: 1,
                   PAGOS_PERIODOS_ASIGNADO: 1,
                   PROYECTO: 1,
-                  status: 1
+                  status: 1,
                 },
               },
             ],

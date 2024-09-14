@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { Random } from "meteor/random";
+
 import {
   Button,
   DatePicker,
@@ -13,9 +15,10 @@ import {
 import { InboxOutlined } from "@ant-design/icons";
 
 import * as XLSX from "xlsx";
-import checkKeys from "./checkKkeys";
 import normalizedRecords from "./normalizeRecords";
 import List from "./list";
+import renameKeys from "./renameKeys";
+import moment from "moment";
 
 const { Dragger } = Upload;
 
@@ -44,7 +47,7 @@ export default function AnalizeExcel() {
 
     new Promise(() => {
       const reader = new FileReader();
-      
+
       reader.readAsArrayBuffer(file);
       reader.onload = () => {
         const data = reader.result;
@@ -53,14 +56,16 @@ export default function AnalizeExcel() {
         const ws = wb.Sheets[wb.SheetNames[0]];
         const jsonSheet = XLSX.utils.sheet_to_json(ws);
 
-        if (!checkKeys(jsonSheet[0])) {
-          setReading(false);
-          return message.error("formato de archivo no valido");
-        }
+        // if (!checkKeys(jsonSheet[0])) {
+        //   setReading(false);
+        //   return message.error("formato de archivo no valido");
+        // }
 
+        const proyect = Meteor.user({ profile: 1 }).profile.proyect;
         let successfulUpdates = 0;
         jsonSheet.forEach((record_) => {
-          const record = normalizedRecords(record_);
+          const normalized_record = normalizedRecords(record_);
+          const record = renameKeys(normalized_record);
 
           let totalDeudaCorriente = 0;
           if (record["ESTADO_FINANCIERO"] === "C") {
@@ -90,9 +95,12 @@ export default function AnalizeExcel() {
               ? record["DESCRIPCION_TIPO_PRODUCTO"].toUpperCase()
               : "",
             status: "pending",
+            proyect,
+            NUMERO_DE_LA_ORDEN:
+              record.NUMERO_DE_LA_ORDEN ||
+              "S-" + Random.id(8) + "-" + moment().format("DD-MM-YYYY"),
           };
           setReading(false);
-
           Meteor.call(
             "createRecord",
             normalizedRecord,

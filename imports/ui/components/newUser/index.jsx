@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Form, Input, Button, Select, message, Typography, Flex } from "antd";
 import { Meteor } from "meteor/meteor";
 
@@ -9,16 +9,23 @@ export default function NewUser() {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    const { username, password, role } = values;
+    const { username, password, role, proyect } = values;
 
-    Meteor.call("createUserWithRole", username, password, role, (error) => {
-      if (error) {
-        message.error("Error creando usuario: " + error.reason);
-      } else {
-        message.success("Usuario creado con exito");
-        form.resetFields();
+    Meteor.call(
+      "createUserWithRole",
+      username,
+      password,
+      role,
+      proyect,
+      (error) => {
+        if (error) {
+          message.error("Error creando usuario: " + error.reason);
+        } else {
+          message.success("Usuario creado con exito");
+          form.resetFields();
+        }
       }
-    });
+    );
   };
   return (
     <>
@@ -55,6 +62,17 @@ export default function NewUser() {
           <Select placeholder="Asignar un rol">
             <Option value="leader">Lider</Option>
             <Option value="management">Gestor</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="proyect"
+          rules={[
+            { required: true, message: "Por favor, selecciona un proyecto!" },
+          ]}
+        >
+          <Select placeholder="Asignar un proyecto">
+            <Option value="movilidad">Movilidad</Option>
+            <Option value="sierra">Sierra</Option>
           </Select>
         </Form.Item>
         <Form.Item>

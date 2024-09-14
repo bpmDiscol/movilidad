@@ -216,6 +216,7 @@ postRoutes.route("/management", function (params, req, res) {
   authenticate(req, res, () => {
     // Extrae los datos del query string
     const {
+      proyecto,
       NUMERO_DE_LA_ORDEN,
       fecha_gestion,
       numero_producto,
@@ -233,6 +234,15 @@ postRoutes.route("/management", function (params, req, res) {
       observacion,
       ubicacion,
       status,
+      uso_del_predio,
+      tipo_de_habitante,
+      clase_predio,
+      tipo_comercio,
+      nivel_estado_servicio,
+      cuota_inicial,
+      cuota_mensual,
+      numero_personas
+
     } = req.body;
 
     // Añade los datos a la colección records
@@ -266,6 +276,14 @@ postRoutes.route("/management", function (params, req, res) {
           observacion,
           ubicacion,
           status,
+          uso_del_predio,
+          tipo_de_habitante,
+          clase_predio,
+          tipo_comercio,
+          nivel_estado_servicio,
+          cuota_inicial,
+          cuota_mensual,
+          numero_personas,
           updatedAt: moment(Date.now()).startOf("day").toDate(),
         },
       },
