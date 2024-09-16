@@ -1,8 +1,5 @@
 import React from "react";
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UploadOutlined,
   CloudUploadOutlined,
   UserOutlined,
   SnippetsOutlined,
@@ -50,7 +47,12 @@ export default function getMenu(role, setView) {
         key: "13",
         icon: <SnippetsOutlined />,
         label: "Aplicativo",
-        onClick: () => download("/discol_1-0-3.apk"),
+        onClick: () =>
+          download(
+            Meteor.user({ profile: 1 }).profile.project == "sierra"
+              ? "/sierra.apk"
+              : "/movilidad.apk"
+          ),
       },
     ],
     leader: [

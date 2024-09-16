@@ -186,7 +186,7 @@ export default function GetReport({ admin = false }) {
       );
 
       const ws = XLSX.utils.json_to_sheet(
-        data[0].proyect == "sierra" ? data : mappedData,
+        data[0].project == "sierra" ? data : mappedData,
         {
           header: formattedHeaders,
         }
