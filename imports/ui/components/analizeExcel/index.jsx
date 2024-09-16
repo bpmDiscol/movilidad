@@ -62,7 +62,7 @@ export default function AnalizeExcel() {
         //   return message.error("formato de archivo no valido");
         // }
 
-        const project = Meteor.user({ profile: 1 }).profile.proyect;
+        const project = Meteor.user({ profile: 1 }).profile.project;
         const documentId = Random.id(16);
         setCurrentDocument(documentId);
         let successfulUpdates = 0;

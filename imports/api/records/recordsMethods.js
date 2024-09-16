@@ -15,9 +15,9 @@ Meteor.methods({
   async getRecords(page, pageSize, filters = {}, sort) {
     page = parseInt(page, 10) || 1;
     pageSize = parseInt(pageSize, 10) || 50;
-    const proyect = Meteor.users.findOne(this.userId).profile.proyect;
+    const project = Meteor.users.findOne(this.userId).profile.project;
 
-    let filter = { proyect };
+    let filter = { project };
     if (filters)
       for (const [key, value] of Object.entries(filters)) {
         key === "GESTOR"
