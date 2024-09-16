@@ -7,13 +7,21 @@ import {
   UserOutlined,
   SnippetsOutlined,
   UserAddOutlined,
-  UsergroupAddOutlined
+  UsergroupAddOutlined,
 } from "@ant-design/icons";
 import NewUser from "../components/newUser";
 import AssignManagers from "../components/assignManagers";
 import Records from "../components/records";
 import AnalizeExcel from "../components/analizeExcel";
 import GetReport from "../components/records/getReport";
+
+function download(url) {
+  const newTab = document.createElement("a");
+  newTab.href = url;
+  newTab.target = "_blank";
+  // newTab.download = true;
+  newTab.click();
+}
 
 export default function getMenu(role, setView) {
   const roles = {
@@ -37,28 +45,32 @@ export default function getMenu(role, setView) {
         onClick: () => setView(<GetReport admin />),
       },
     ],
-    management: [],
+    management: [
+      {
+        key: "13",
+        icon: <SnippetsOutlined />,
+        label: "Aplicativo",
+        onClick: () => download("/discol_1-0-3.apk"),
+      },
+    ],
     leader: [
       {
         key: "10",
         icon: <CloudUploadOutlined />,
         label: "Cargar ",
         onClick: () => setView(<AnalizeExcel />),
-
       },
       {
         key: "11",
         icon: <UserOutlined />,
         label: "Asignar gestores",
         onClick: () => setView(<Records />),
-
       },
       {
         key: "12",
         icon: <SnippetsOutlined />,
         label: "Reportes",
         onClick: () => setView(<GetReport />),
-
       },
     ],
   };

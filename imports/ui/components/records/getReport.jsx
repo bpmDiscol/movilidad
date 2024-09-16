@@ -113,7 +113,7 @@ export default function GetReport({ admin = false }) {
 
           const resolved = await Promise.all(updatedResult)
             .then((photos) => photos)
-            .catch(() => "error");
+            .catch((e) => console.log(e));
 
           setDataSource(resolved);
           setReport(result.report[0]);
@@ -180,13 +180,17 @@ export default function GetReport({ admin = false }) {
         setDownloadReport({ percent: page / total, loading: true });
         page++;
       }
+      const data = allData.flat(1)
       const { mappedData, formattedHeaders, columns } = mapOutput(
-        allData.flat(2)
+        data
       );
 
-      const ws = XLSX.utils.json_to_sheet(mappedData, {
-        header: formattedHeaders,
-      });
+      const ws = XLSX.utils.json_to_sheet(
+        data[0].proyect == "sierra" ? data : mappedData,
+        {
+          header: formattedHeaders,
+        }
+      );
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Report");
       XLSX.writeFile(wb, `Reporte_-${Date.now()}.xlsx`);
@@ -287,7 +291,7 @@ export default function GetReport({ admin = false }) {
           handleTableChange={handleTableChange}
           pagination={pagination}
           managers={admin ? allManagers : managers}
-          />
+        />
         {managers && report && (
           <ReportTable
             report={report}

@@ -107,7 +107,6 @@ export default function MainTable({
       }));
   };
   
-  console.log("🚀 ~ mainSource:", mainSource)
   return (
     <>
       <Table
