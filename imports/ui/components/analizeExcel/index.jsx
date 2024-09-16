@@ -32,6 +32,7 @@ export default function AnalizeExcel() {
   const [reloading, setReloading] = useState(false);
   const [reloadList, setReloadList] = useState(0);
   const [reading, setReading] = useState(false);
+  const [currentDocument, setCurrentDocument] = useState();
 
   function uploadRecords(file) {
     setReading(true);
@@ -49,7 +50,7 @@ export default function AnalizeExcel() {
       const reader = new FileReader();
 
       reader.readAsArrayBuffer(file);
-      
+
       reader.onload = () => {
         const data = reader.result;
         const wb = XLSX.read(data);
@@ -62,6 +63,8 @@ export default function AnalizeExcel() {
         // }
 
         const project = Meteor.user({ profile: 1 }).profile.proyect;
+        const documentId = Random.id(16);
+        setCurrentDocument(documentId);
         let successfulUpdates = 0;
         jsonSheet.forEach((record_) => {
           const normalized_record = normalizedRecords(record_);
@@ -96,6 +99,7 @@ export default function AnalizeExcel() {
               : "",
             status: "pending",
             project,
+            documentId,
             NUMERO_DE_LA_ORDEN:
               record.NUMERO_DE_LA_ORDEN ||
               "S-" + Random.id(10) + "-" + moment().format("DD-MM-YYYY"),
@@ -191,6 +195,7 @@ export default function AnalizeExcel() {
       ...extrafields,
       updates,
       leaderId: Meteor.userId(),
+      documentId: currentDocument,
     }).catch((error) => {
       if (error.error === "document-exists") {
         message.warning(error.reason);
