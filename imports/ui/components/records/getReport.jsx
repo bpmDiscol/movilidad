@@ -203,6 +203,7 @@ export default function GetReport({ admin = false }) {
         <Flex
           align="center"
           justify="space-between"
+          gap={10}
           style={{ backgroundColor: "#8178ba", padding: "10px" }}
         >
           {admin && (

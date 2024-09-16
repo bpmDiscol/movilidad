@@ -5,6 +5,8 @@ import { Table } from "antd";
 import ResponseTable from "./responseTable";
 
 export default function FinancialTable({ dataSource, getColumns, data }) {
+  console.log("🚀 ~ FinancialTable ~ data:", data)
+  console.log("🚀 ~ FinancialTable ~ dataSource:", dataSource)
   const financialSource = getSubSource(
     [
       "ESTADO_DE_CORTE",
@@ -28,7 +30,6 @@ export default function FinancialTable({ dataSource, getColumns, data }) {
       (source) => source.NUMERO_DE_LA_ORDEN == data.NUMERO_DE_LA_ORDEN
     )
   );
-
   return (
     <Table
       bordered

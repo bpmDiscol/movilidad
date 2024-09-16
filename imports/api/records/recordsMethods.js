@@ -173,6 +173,8 @@ Meteor.methods({
                   PAGOS_PERIODOS_ASIGNADO: 1,
                   PROYECTO: 1,
                   status: 1,
+                  period: 1,
+                  NUMERO_DE_LA_ORDEN: 1,
                 },
               },
             ],

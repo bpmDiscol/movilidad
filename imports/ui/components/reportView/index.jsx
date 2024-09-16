@@ -264,7 +264,7 @@ export default function AdminView() {
           dataSource={dataSource}
           handleTableChange={handleTableChange}
           pagination={pagination}
-          managers={allManagers}
+          managers={admin? allManagers: allManagers}
         />
         {managers && report && (
           <ReportTable report={report} managers={allManagers} />
