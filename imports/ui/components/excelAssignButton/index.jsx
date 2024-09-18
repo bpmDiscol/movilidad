@@ -27,7 +27,7 @@ export default function ExcelAssignButton({ managers, setReload }) {
       const gestoresNoExistentes = new Set();
 
       rows.forEach((row) => {
-        const [nombreGestor, idOrden] = row;
+        const [nombreGestor, idOrden, tipo_producto] = row;
 
         if (
           !nombreGestor ||
@@ -41,7 +41,6 @@ export default function ExcelAssignButton({ managers, setReload }) {
         const gestor = managers.filter(
           (manager) => manager.username == nombreGestor
         );
-
         if (!gestor.length) {
           if (!gestoresNoExistentes.has(nombreGestor)) {
             gestoresNoExistentes.add(nombreGestor);
@@ -56,6 +55,7 @@ export default function ExcelAssignButton({ managers, setReload }) {
           idOrden.toString(),
           gestor[0].id,
           Meteor.userId(),
+          tipo_producto,
           (err) => {
             if (err)
               message.error(

@@ -101,8 +101,7 @@ export default function AnalizeExcel() {
             project,
             documentId,
             NUMERO_DE_LA_ORDEN:
-              record.NUMERO_DE_LA_ORDEN ||
-              "S-" + Random.id(10) + "-" + moment().format("DD-MM-YYYY"),
+              record.NUMERO_DE_LA_ORDEN || "S-" + Random.fraction() * 10,
           };
           setReading(false);
           Meteor.call(

@@ -24,6 +24,12 @@ import moment from "moment";
 import ExcelAssignButton from "../excelAssignButton";
 
 const { Text } = Typography;
+const serviceOptions = [
+  "Cartera",
+  "Suspensión Sencilla",
+  "Suspensión Drastica",
+  "Reconexiones",
+];
 
 export default function Records() {
   const [reload, setReload] = useState(0);
@@ -31,7 +37,6 @@ export default function Records() {
   const [managers, setManagers] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 5,
     total: 0,
   });
   const [searchText, setSearchText] = useState("");
@@ -40,11 +45,13 @@ export default function Records() {
   const [searchKeys, setSearchKeys] = useState({});
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedManager, setSelectedManager] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
   const [managerAlert, setManagerAlert] = useState({
     open: false,
     recordId: 0,
     managerId: 0,
   });
+  const project = Meteor.user().profile.project;
 
   const voidSorter = { sortField: null, sortOrder: 1 };
   const fetchRecords = (page, pageSize, search, sort = voidSorter) => {
@@ -552,6 +559,20 @@ export default function Records() {
                 </Select.Option>
               ))}
             </Select>
+
+            {project == "sierra" && <Select
+              title="Asignacion tipo de servicio"
+              placeholder="Tipo de servicio"
+              style={{ width: 200 }}
+              onChange={(value) => setSelectedService(value)}
+              allowClear
+            >
+              {serviceOptions.map((service) => (
+                <Select.Option key={service} value={service.toLowerCase()}>
+                  {service}
+                </Select.Option>
+              ))}
+            </Select>}
             <Button type="primary" onClick={handleBatchAssign}>
               Asignar gestores
             </Button>
@@ -578,7 +599,6 @@ export default function Records() {
         onChange={handleTableChange}
         scroll={{
           x: 100,
-          y: "50dvh",
         }}
         style={{ width: "100vw", overflowX: "auto" }}
         rowClassName={(_, index) =>

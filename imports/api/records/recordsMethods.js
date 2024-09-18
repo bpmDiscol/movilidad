@@ -57,11 +57,15 @@ Meteor.methods({
       total: records[0].totalCount,
     };
   },
-  async updateRecordManager(recordId, managerId, leaderId) {
+  async updateRecordManager(recordId, managerId, leaderId, tipo_producto) {
+    const product = {};
+    if (tipo_producto) product.DESCRIPCION_TIPO_PRODUCTO = tipo_producto;
+
     return await recordsCollection.updateAsync(
       { NUMERO_DE_LA_ORDEN: recordId, leaderId },
       {
         $set: {
+          ...product,
           GESTOR: managerId,
           status: "pending",
           updatedAt: "",
@@ -132,7 +136,6 @@ Meteor.methods({
             data: [
               { $skip: (page - 1) * pageSize }, // Saltar registros para paginación
               { $limit: pageSize }, // Limitar la cantidad de registros por página
-              
             ],
           },
         },
