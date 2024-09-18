@@ -157,6 +157,7 @@ export default function Records() {
             recordId,
             selectedManager,
             Meteor.userId(),
+            selectedService,
             (error) => {
               if (error) {
                 reject(error);
