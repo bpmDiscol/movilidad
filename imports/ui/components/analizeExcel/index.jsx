@@ -18,7 +18,6 @@ import * as XLSX from "xlsx";
 import normalizedRecords from "./normalizeRecords";
 import List from "./list";
 import renameKeys from "./renameKeys";
-import moment from "moment";
 
 const { Dragger } = Upload;
 
@@ -33,6 +32,7 @@ export default function AnalizeExcel() {
   const [reloadList, setReloadList] = useState(0);
   const [reading, setReading] = useState(false);
   const [currentDocument, setCurrentDocument] = useState();
+  const [nonCharged, setNonCharged] = useState(0);
 
   function uploadRecords(file) {
     setReading(true);
@@ -66,9 +66,19 @@ export default function AnalizeExcel() {
         const documentId = Random.id(16);
         setCurrentDocument(documentId);
         let successfulUpdates = 0;
+        setNonCharged(0);
         jsonSheet.forEach((record_) => {
           const normalized_record = normalizedRecords(record_);
           const record = renameKeys(normalized_record);
+          if (!record.NUMERO_DE_LA_ORDEN) {
+            setReading(false);
+            setProgressStatus("exception");
+            setNonCharged((prev) => prev + 1);
+            return setProgressLevel((prev) => ({
+              total: jsonSheet.length,
+              current: prev.current + 1,
+            }));
+          }
 
           let totalDeudaCorriente = 0;
           if (record["ESTADO_FINANCIERO"] === "C") {
@@ -100,8 +110,7 @@ export default function AnalizeExcel() {
             status: "pending",
             project,
             documentId,
-            NUMERO_DE_LA_ORDEN:
-              record.NUMERO_DE_LA_ORDEN || "S-" + Random.fraction() * 10,
+            NUMERO_DE_LA_ORDEN: record.NUMERO_DE_LA_ORDEN,
           };
           setReading(false);
           Meteor.call(
@@ -115,7 +124,7 @@ export default function AnalizeExcel() {
               }));
               if (!err) {
                 successfulUpdates++;
-                setProgressStatus("success");
+                setProgressStatus("active");
               } else {
                 message.warning(
                   "No fue posible cargar Orden No:" + record.NUMERO_DE_LA_ORDEN
@@ -168,20 +177,23 @@ export default function AnalizeExcel() {
         });
       }, 10); // Adjust this value for smoother/slower animation
 
-      function update() {
-        addDocument(totalUpdates);
-        setReloading(false);
-        setReloadList(Math.random());
-      }
-
-      if ((progressLevel.current / progressLevel.total) * 100 == 100) {
-        setReloading(true);
-        Meteor.setTimeout(update, 1000);
-      }
-
       return () => clearInterval(interval);
     }
   }, [progressLevel]);
+
+  function update() {
+    addDocument(totalUpdates);
+    setReloading(false);
+    setReloadList(Math.random());
+    setProgressStatus("success");
+  }
+
+  useEffect(() => {
+    if (displayedProgress >= 100 && nonCharged < progressLevel.total) {
+      setReloading(true);
+      Meteor.setTimeout(update, 1000);
+    }
+  }, [displayedProgress]);
 
   async function addDocument(updates) {
     const { chargeFile, ...fields } = form.getFieldsValue();
@@ -301,12 +313,11 @@ export default function AnalizeExcel() {
                     status={progressStatus}
                   />
                   {progressStatus === "success" ? (
-                    <>
-                      <p>Se realizaron {totalUpdates} actualizaciones</p>
-                    </>
+                    <p>Se realizaron {totalUpdates} actualizaciones</p>
                   ) : (
                     <p>Error en la carga</p>
                   )}
+                  {nonCharged && <p>{nonCharged} no se cargaron</p>}
                 </>
               ) : null}
             </Dragger>

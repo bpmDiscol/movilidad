@@ -5,8 +5,8 @@ const formatColumnTitle = (title) => {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-export default function mapOutput(output) {
-  const columns = [
+export default function mapOutput(output, project) {
+  const movilidadColumns = [
     "PRODUCTO",
     "CONTRATO",
     "CLIENTE",
@@ -27,7 +27,6 @@ export default function mapOutput(output) {
     "telefono_sugerido",
     "tipo_de_vivienda",
     "ubicacion",
-    "fotos",
     "PERIODO",
     "LATITUD",
     "LONGITUD",
@@ -46,7 +45,41 @@ export default function mapOutput(output) {
     "PAGOS_PERIODOS_ASIGNADO",
     "PROYECTO",
     "status",
+    "observacion",
+    "FOTO1",
+    "FOTO2",
   ];
+
+  const sierraColumns = [
+    "PRODUCTO",
+    "NOMBRE CLIENTE",
+    "NUMERO_DE_LA_ORDEN",
+    "causal_de_pago",
+    "causal_de_no_pago",
+    "fecha_compromiso",
+    "estado_servicio",
+    "recibo",
+    "valor_recibido",
+    "tipo_de_vivienda",
+    "contacto",
+    "telefono_sugerido",
+    "uso_del_predio",
+    "tipo_habitante",
+    "clase_predio",
+    "tipo_comercio",
+    "estado_servicio",
+    "cuota_inicial_ofrece",
+    "cuota_mensual",
+    "numero_de_personas",
+    "observacion",
+    "LATITUD",
+    "LONGITUD",
+    "status",
+    "FOTO1",
+    "FOTO2",
+  ];
+
+  const columns = project === "sierra" ? sierraColumns : movilidadColumns;
   const formattedHeaders = columns.map(formatColumnTitle);
 
   const mappedData = output.map((record) => {

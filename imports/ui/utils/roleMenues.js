@@ -47,12 +47,7 @@ export default function getMenu(role, setView) {
         key: "13",
         icon: <SnippetsOutlined />,
         label: "Aplicativo",
-        onClick: () =>
-          download(
-            Meteor.user({ profile: 1 }).profile.project == "sierra"
-              ? "/sierra.apk"
-              : "/movilidad.apk"
-          ),
+        onClick: () => download("/movilidad.apk"),
       },
     ],
     leader: [

@@ -164,33 +164,47 @@ export default function GetReport({ admin = false }) {
         });
         if (partData[0].totalCount) total = partData[0].totalCount;
 
-        const updatedResult = partData[0].data.map((record) => ({
-          ...record,
-          GESTOR:
-            managers.find((manager) => manager.id === record.GESTOR)
-              ?.username ||
-            record.GESTOR ||
-            "No asignado",
-          PERIODO: convertDate(record.period),
-          LATITUD: record.ubicacion?.latitud,
-          LONGITUD: record.ubicacion?.longitud,
-        }));
+        const updatedResult = await partData[0].data.map(async (record) => {
+          const photoPromises = record.fotos
+            ? record.fotos.map((photoId) =>
+                Meteor.callAsync("getFileLink", photoId)
+              )
+            : null;
+          const FOTOS = photoPromises
+          ? await Promise.all(photoPromises)
+          .then((photos) => photos.flat(1).map((p) => p.link))
+          .catch(() => "Error")
+          : null;
+          
+          console.log("🚀 ~ updatedResult ~ FOTOS:", FOTOS)
+          return {
+            ...record,
+            GESTOR:
+              managers.find((manager) => manager.id === record.GESTOR)
+                ?.username ||
+              record.GESTOR ||
+              "No asignado",
+            PERIODO: convertDate(record.period),
+            LATITUD: record.ubicacion?.latitud,
+            LONGITUD: record.ubicacion?.longitud,
+            FOTO1: FOTOS && FOTOS[0],
+            FOTO2: FOTOS && FOTOS[1],
+          };
+        });
 
-        allData.push(updatedResult);
+        const updated = await Promise.all(updatedResult).catch(e=> console.log(e))
+
+        allData.push(updated);
         setDownloadReport({ percent: page / total, loading: true });
         page++;
       }
-      const data = allData.flat(1)
-      const { mappedData, formattedHeaders, columns } = mapOutput(
-        data
-      );
+      const data = allData.flat(1);
+      console.log(data)
+      const { mappedData, formattedHeaders } = mapOutput(data, data[0].project);
 
-      const ws = XLSX.utils.json_to_sheet(
-        data[0].project == "sierra" ? data : mappedData,
-        {
-          header: formattedHeaders,
-        }
-      );
+      const ws = XLSX.utils.json_to_sheet(mappedData, {
+        header: formattedHeaders,
+      });
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Report");
       XLSX.writeFile(wb, `Reporte_-${Date.now()}.xlsx`);
