@@ -171,12 +171,11 @@ export default function GetReport({ admin = false }) {
               )
             : null;
           const FOTOS = photoPromises
-          ? await Promise.all(photoPromises)
-          .then((photos) => photos.flat(1).map((p) => p.link))
-          .catch(() => "Error")
-          : null;
-          
-          console.log("🚀 ~ updatedResult ~ FOTOS:", FOTOS)
+            ? await Promise.all(photoPromises)
+                .then((photos) => photos.flat(1).map((p) => p.link))
+                .catch(() => "Error")
+            : null;
+
           return {
             ...record,
             GESTOR:
@@ -187,19 +186,24 @@ export default function GetReport({ admin = false }) {
             PERIODO: convertDate(record.period),
             LATITUD: record.ubicacion?.latitud,
             LONGITUD: record.ubicacion?.longitud,
-            FOTO1: FOTOS && FOTOS[0],
-            FOTO2: FOTOS && FOTOS[1],
+            FOTO1: FOTOS
+              ? { v: "ver foto 1", l: { Target: FOTOS[0] }, t: "s" }
+              : "",
+            FOTO2: FOTOS
+              ? { v: "ver foto 2", l: { Target: FOTOS[1] }, t: "s" }
+              : "",
           };
         });
 
-        const updated = await Promise.all(updatedResult).catch(e=> console.log(e))
+        const updated = await Promise.all(updatedResult).catch((e) =>
+          console.log(e)
+        );
 
         allData.push(updated);
         setDownloadReport({ percent: page / total, loading: true });
         page++;
       }
       const data = allData.flat(1);
-      console.log(data)
       const { mappedData, formattedHeaders } = mapOutput(data, data[0].project);
 
       const ws = XLSX.utils.json_to_sheet(mappedData, {
