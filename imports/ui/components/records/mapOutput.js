@@ -52,25 +52,26 @@ export default function mapOutput(output, project) {
 
   const sierraColumns = [
     "PRODUCTO",
-    "NOMBRE CLIENTE",
+    "GESTOR",
+    "NOMBRE_CLIENTE",
     "NUMERO_DE_LA_ORDEN",
     "causal_de_pago",
     "causal_de_no_pago",
     "fecha_compromiso",
     "estado_servicio",
     "recibo",
-    "valor_recibido",
+    "valor_recibo",//"valor_recibo"
     "tipo_de_vivienda",
     "contacto",
     "telefono_sugerido",
     "uso_del_predio",
-    "tipo_habitante",
-    "clase_predio",
-    "tipo_comercio",
-    "estado_servicio",
-    "cuota_inicial_ofrece",
+    "tipo_habitante",//** */
+    "clase_predio",//
+    "tipo_comercio",//** */
+    "nivel_estado_servicio",
+    "cuota_inicial_ofrece",//** */
     "cuota_mensual",
-    "numero_de_personas",
+    "numero_de_personas",//** */
     "observacion",
     "LATITUD",
     "LONGITUD",

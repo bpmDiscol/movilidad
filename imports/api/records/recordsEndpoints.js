@@ -216,11 +216,9 @@ postRoutes.route("/management", function (params, req, res) {
   authenticate(req, res, () => {
     // Extrae los datos del query string
     const {
-      proyecto,
       NUMERO_DE_LA_ORDEN,
       fecha_gestion,
       numero_producto,
-      tipo_producto,
       resultado_de_gestion,
       causal_de_pago,
       causal_de_no_pago,
@@ -235,13 +233,13 @@ postRoutes.route("/management", function (params, req, res) {
       ubicacion,
       status,
       uso_del_predio,
-      tipo_de_habitante,
+      tipo_habitante,
       clase_predio,
       tipo_comercio,
       nivel_estado_servicio,
-      cuota_inicial,
+      cuota_inicial_ofrece,
       cuota_mensual,
-      numero_personas
+      numero_de_personas
 
     } = req.body;
 
@@ -262,7 +260,6 @@ postRoutes.route("/management", function (params, req, res) {
         $set: {
           fecha_gestion: formattedFechaGestion,
           numero_producto,
-          tipo_producto,
           resultado_de_gestion,
           causal_de_pago,
           causal_de_no_pago,
@@ -277,13 +274,13 @@ postRoutes.route("/management", function (params, req, res) {
           ubicacion,
           status,
           uso_del_predio,
-          tipo_de_habitante,
+          tipo_habitante,
           clase_predio,
           tipo_comercio,
           nivel_estado_servicio,
-          cuota_inicial,
+          cuota_inicial_ofrece,
           cuota_mensual,
-          numero_personas,
+          numero_de_personas,
           updatedAt: moment(Date.now()).startOf("day").toDate(),
         },
       },
