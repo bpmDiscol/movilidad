@@ -58,7 +58,6 @@ export default function mapOutput(output, project) {
     "causal_de_pago",
     "causal_de_no_pago",
     "fecha_compromiso",
-    "estado_servicio",
     "recibo",
     "valor_recibo",//"valor_recibo"
     "tipo_de_vivienda",
