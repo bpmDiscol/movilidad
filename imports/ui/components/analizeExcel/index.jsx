@@ -317,7 +317,7 @@ export default function AnalizeExcel() {
                   ) : (
                     <p>Error en la carga</p>
                   )}
-                  {nonCharged && <p>{nonCharged} no se cargaron</p>}
+                  {nonCharged > 0 && <p>{nonCharged} no se cargaron</p>}
                 </>
               ) : null}
             </Dragger>

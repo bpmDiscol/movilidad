@@ -17,6 +17,7 @@ import MainTable from "./mainTable";
 import ReportTable from "./reportTable";
 import Totals from "./totals";
 import mapOutput from "./mapOutput";
+import downloadRecordsAsExcel from "./downloadAssignments";
 
 const { Text, Title, Link } = Typography;
 
@@ -289,18 +290,25 @@ export default function GetReport({ admin = false }) {
         style={{ paddingTop: "32px" }}
       >
         <Title>Reporte general</Title>
-        <Button
-          type="primary"
-          style={{ width: "10rem" }}
-          onClick={handleExport}
-          disabled={dataSource.length === 0}
-          loading={downloadReport.loading}
-          danger={downloadReport.loading}
-        >
-          {downloadReport.loading
-            ? (downloadReport.percent * 10000).toFixed(1) + "% descargado"
-            : "Exportar a Excel"}
-        </Button>
+        <Flex gap={16}>
+          {admin && (
+            <Button onClick={() => downloadRecordsAsExcel(allManagers)}>
+              Descargar asignaciones
+            </Button>
+          )}
+          <Button
+            type="primary"
+            style={{ width: "10rem" }}
+            onClick={handleExport}
+            disabled={dataSource.length === 0}
+            loading={downloadReport.loading}
+            danger={downloadReport.loading}
+          >
+            {downloadReport.loading
+              ? (downloadReport.percent * 10000).toFixed(1) + "% descargado"
+              : "Exportar a Excel"}
+          </Button>
+        </Flex>
       </Flex>
       <Totals totales={totales} />
       <Flex vertical gap={32}>

@@ -12,7 +12,20 @@ Meteor.methods({
 
     return recordsCollection.insert({ ...record, leaderId, _id });
   },
-  async getRecords(page, pageSize, filters = {}, sort) {
+  async get_assignments() {
+    return recordsCollection.find(
+      {},
+      {
+        fields: {
+          GESTOR: 1,
+          leaderId: 1,
+          DESCRIPCION_TIPO_PRODUCTO: 1,
+          status: 1,
+        },
+      }
+    );
+  },
+  async getRecords(page, pageSize, filters, sort) {
     page = parseInt(page, 10) || 1;
     pageSize = parseInt(pageSize, 10) || 50;
     const project = Meteor.users.findOne(this.userId).profile.project;
@@ -70,7 +83,7 @@ Meteor.methods({
           status: "pending",
           updatedAt: "",
           fecha_gestion: "",
-          fecha_asignacion: moment().format('DD/MM/YYYY')
+          fecha_asignacion: moment().format("DD/MM/YYYY"),
         },
       },
       { upsert: true }

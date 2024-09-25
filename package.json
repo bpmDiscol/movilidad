@@ -10,6 +10,7 @@
   "dependencies": {
     "@babel/runtime": "^7.23.5",
     "antd": "^5.20.0",
+    "file-saver": "^2.0.5",
     "jsonwebtoken": "^9.0.2",
     "meteor-node-stubs": "^1.2.7",
     "moment": "^2.30.1",
