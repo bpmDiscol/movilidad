@@ -47,7 +47,7 @@ export default function getMenu(role, setView) {
         key: "13",
         icon: <SnippetsOutlined />,
         label: "Aplicativo",
-        onClick: () => download("/movilidad.apk"),
+        onClick: () => download("/movilidapp.apk"),
       },
     ],
     leader: [
