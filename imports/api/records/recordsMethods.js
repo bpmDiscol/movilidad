@@ -70,6 +70,7 @@ Meteor.methods({
           status: "pending",
           updatedAt: "",
           fecha_gestion: "",
+          fecha_asignacion: moment().format('DD/MM/YYYY')
         },
       },
       { upsert: true }

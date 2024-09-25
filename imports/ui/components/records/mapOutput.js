@@ -51,6 +51,7 @@ export default function mapOutput(output, project) {
   ];
 
   const sierraColumns = [
+    
     "PRODUCTO",
     "GESTOR",
     "NOMBRE_CLIENTE",
@@ -59,24 +60,28 @@ export default function mapOutput(output, project) {
     "causal_de_no_pago",
     "fecha_compromiso",
     "recibo",
-    "valor_recibo",//"valor_recibo"
+    "valor_recibo",
     "tipo_de_vivienda",
     "contacto",
     "telefono_sugerido",
     "uso_del_predio",
-    "tipo_habitante",//** */
-    "clase_predio",//
-    "tipo_comercio",//** */
+    "tipo_habitante",
+    "clase_predio",
+    "tipo_comercio",
     "nivel_estado_servicio",
-    "cuota_inicial_ofrece",//** */
+    "cuota_inicial_ofrece",
     "cuota_mensual",
-    "numero_de_personas",//** */
+    "numero_de_personas",
     "observacion",
     "LATITUD",
     "LONGITUD",
     "status",
     "FOTO1",
     "FOTO2",
+    "PERIODO",
+    "fecha_asignacion",
+    "fecha_gestion",
+    "updatedAt",
   ];
 
   const columns = project === "sierra" ? sierraColumns : movilidadColumns;
