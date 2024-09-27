@@ -57,11 +57,7 @@ export default function AnalizeExcel() {
 
         const ws = wb.Sheets[wb.SheetNames[0]];
         const jsonSheet = XLSX.utils.sheet_to_json(ws);
-        // if (!checkKeys(jsonSheet[0])) {
-        //   setReading(false);
-        //   return message.error("formato de archivo no valido");
-        // }
-
+       
         const project = Meteor.user({ profile: 1 }).profile.project;
         const documentId = Random.id(16);
         setCurrentDocument(documentId);

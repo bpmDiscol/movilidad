@@ -14,7 +14,7 @@ Meteor.methods({
   },
   async get_assignments() {
     return recordsCollection.find(
-      {},
+      { project: "sierra" },
       {
         fields: {
           GESTOR: 1,
@@ -23,7 +23,7 @@ Meteor.methods({
           status: 1,
         },
       }
-    );
+    ).fetch();
   },
   async getRecords(page, pageSize, filters, sort) {
     page = parseInt(page, 10) || 1;
@@ -100,10 +100,12 @@ Meteor.methods({
     sortField,
     sortOrder = 1,
     leaderId,
+    assigneds
   }) {
     let query = {};
 
     if (leaderId) query.leaderId = leaderId;
+    if(assigneds) query.GESTOR = {$exists: true}
 
     if (managerId) {
       query["GESTOR"] = managerId;

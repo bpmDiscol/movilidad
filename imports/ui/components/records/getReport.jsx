@@ -5,6 +5,7 @@ import {
   Flex,
   message,
   Select,
+  Switch,
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
@@ -22,6 +23,8 @@ import downloadRecordsAsExcel from "./downloadAssignments";
 const { Text, Title, Link } = Typography;
 
 export default function GetReport({ admin = false }) {
+  const [downloadindingAssignments, setDownloadAssignments] = useState();
+  const [assigneds, setAssigneds] = useState();
   const [leaders, setLeaders] = useState([]);
   const [selectedLeader, setSelectedLeader] = useState();
   const [dataSource, setDataSource] = useState([]);
@@ -82,6 +85,7 @@ export default function GetReport({ admin = false }) {
         endDate,
         managerIds: managers,
         leaderId: admin ? selectedLeader : Meteor.userId(),
+        assigneds,
       },
       async (error, result) => {
         if (error) {
@@ -159,6 +163,7 @@ export default function GetReport({ admin = false }) {
           startDate,
           endDate,
           sortField: "CONTRATO",
+          assigneds,
         }).catch((e) => {
           console.error(e);
           throw new TypeError("Error durante la descarga");
@@ -220,6 +225,11 @@ export default function GetReport({ admin = false }) {
     }
   }
 
+  async function downloadAssignments() {
+    setDownloadAssignments(true);
+    await downloadRecordsAsExcel(allManagers, leaders, setDownloadAssignments);
+  }
+
   return (
     <Flex vertical>
       <Affix offsetTop={120}>
@@ -276,6 +286,21 @@ export default function GetReport({ admin = false }) {
             format="DD/MM/YYYY"
             placeholder={["Inicio", "Final"]}
           />
+          <Flex vertical justify="center">
+            <Text
+              keyboard
+              style={{ fontSize: 10, width: "3.5rem", color: "#fafafa" }}
+            >
+              Asignada
+            </Text>
+            <Switch
+              onChange={(checked) => setAssigneds(checked)}
+              style={{ width: "2rem" }}
+              title="Asignada"
+              checkedChildren="si"
+              unCheckedChildren="no"
+            />
+          </Flex>
           <Button
             type="primary"
             onClick={() => fetchReport(1, pagination.pageSize)}
@@ -292,8 +317,11 @@ export default function GetReport({ admin = false }) {
         <Title>Reporte general</Title>
         <Flex gap={16}>
           {admin && (
-            <Button onClick={() => downloadRecordsAsExcel(allManagers)}>
-              Descargar asignaciones
+            <Button
+              onClick={downloadAssignments}
+              loading={downloadindingAssignments}
+            >
+              Asignaciones Cienaga
             </Button>
           )}
           <Button
